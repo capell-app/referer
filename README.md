@@ -31,13 +31,13 @@ Evidence: [`src/Actions/BuildRefererReportAction.php`](src/Actions/BuildRefererR
 
 ## Screens And Workflow
 
-Docs gap: add `docs/screenshots.json` before promoting this package with visual workflow claims.
+The site-scoped admin report shows aggregate referral counts and source shares without exposing individual browsing events.
 
-- Admin index screen if the package has a Filament resource.
-- Create/edit screen if editors create records.
-- Settings/configuration screen when settings exist.
-- Frontend output when the package renders public pages.
-- Package detail or install intent screen when marketplace-owned.
+![Referer admin report showing aggregate referral sources](docs/screenshots/referer-admin-report.png)
+
+The same report is available in the dark admin theme:
+
+![Referer admin report in dark mode](docs/screenshots/referer-admin-report-dark.png)
 
 ## Technical Shape
 

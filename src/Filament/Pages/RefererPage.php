@@ -159,12 +159,12 @@ final class RefererPage extends Page
         $pages = max(1, (int) ceil($report->rows->count() / 25));
         $page = min(max(1, $this->reportPage), $pages);
 
-        return [...$viewData,
+        return array_replace($viewData, [
             'report' => $report,
             'reportRows' => $report->rows->forPage($page, 25),
             'reportPage' => $page,
             'reportPages' => $pages,
-        ];
+        ]);
     }
 
     private function validateFilters(): void
