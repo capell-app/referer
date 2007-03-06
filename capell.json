@@ -181,7 +181,13 @@
     "marketplace": {
         "summary": "Privacy-preserving aggregate referral reporting for Capell sites.",
         "description": "Referers reports recognised sources and other external referrals using daily and lifetime counters. It deliberately stores no raw URLs, paths, query strings, IP addresses, cookies, sessions, user IDs, user agents, or event rows.",
-        "screenshots": [],
+        "screenshots": [
+            {
+                "path": "docs/screenshots/referer-admin-report.png",
+                "alt": "Referrers report showing populated referral aggregates in Capell Admin",
+                "caption": "Review referral sources, successful page requests and their share for the selected site and reporting period."
+            }
+        ],
         "categories": ["admin", "growth"]
     },
     "contributionTraceability": {
