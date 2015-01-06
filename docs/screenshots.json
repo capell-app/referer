@@ -4,17 +4,40 @@
     "generatedFor": "deployment-screenshot-runner",
     "requiresInstalledPackage": true,
     "outputDirectory": "packages/referer/docs/screenshots",
-    "entries": [],
-    "notCaptured": [
+    "entries": [
         {
-            "id": "referer-installed-admin-report",
+            "id": "referer-admin-report",
+            "title": "Site-scoped referral source report.",
+            "package": "referer",
             "surface": "admin",
-            "reason": "No installed-App screenshot was captured in this implementation pass; the report requires a consuming Capell App with the package installed and seeded site-scoped admin data."
-        },
+            "targetType": "admin-surface",
+            "target": "RefererPage",
+            "url": "/referer",
+            "required": true,
+            "waitFor": "table tbody tr:has-text(\"Google\"):has-text(\"128\")",
+            "notes": "Use the disposable local/testing screenshot App with CAPELL_SCREENSHOT_FIXTURE and CAPELL_SCREENSHOT_APP_PATH set. The fixture seeds aggregate counts for existing sites without changing the capture administrator permissions. The administrator needs View:RefererPage and access to at least one seeded site. Capture the real last-30-days report; the selector refuses empty or unavailable reports.",
+            "useCase": "An administrator compares referral source counts and shares for the selected site.",
+            "screenshotPath": "packages/referer/docs/screenshots/referer-admin-report.png",
+            "entryState": {
+                "state": "populated",
+                "setup": {
+                    "command": "capell:referer:screenshot-fixture",
+                    "args": ["--force"]
+                },
+                "restore": {
+                    "command": "capell:referer:screenshot-fixture",
+                    "args": ["--force"]
+                },
+                "tokenPlaceholder": "{attempt-token}"
+            }
+        }
+    ],
+    "notCaptured": [
         {
             "id": "referer-cache-hit-boundary",
             "surface": "frontend",
             "reason": "Core currently short-circuits HTML-cache hits before frontend site resolution and exposes no cache-hit extension hook, so this boundary remains documented as an integration gap."
         }
-    ]
+    ],
+    "fixtureCommands": ["capell:referer:screenshot-fixture"]
 }

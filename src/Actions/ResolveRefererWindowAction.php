@@ -8,11 +8,13 @@ use Capell\Referer\Data\RefererWindowData;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Throwable;
 
 final class ResolveRefererWindowAction
 {
+    use AsFake;
     use AsObject;
 
     /** @var list<string> */

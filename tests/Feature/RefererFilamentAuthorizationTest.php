@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Models\Site;
+use Capell\Referer\Actions\SeedRefererScreenshotFixtureAction;
 use Capell\Referer\Filament\Pages\RefererPage;
 use Capell\Referer\Filament\Widgets\TopRefererSourcesFilamentWidget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -135,4 +136,60 @@ it('keeps page and widget reports isolated to the selected site', function (): v
     Livewire::test(TopRefererSourcesFilamentWidget::class)
         ->assertSee('Bing')
         ->assertDontSee('Google');
+});
+
+it('seeds an idempotent screenshot report visible in each permitted site', function (): void {
+    $firstSite = Site::factory()->create();
+    $secondSite = Site::factory()->create();
+    $originalFixture = getenv('CAPELL_SCREENSHOT_FIXTURE');
+    $originalPath = getenv('CAPELL_SCREENSHOT_APP_PATH');
+    putenv('CAPELL_SCREENSHOT_FIXTURE=record-state');
+    putenv('CAPELL_SCREENSHOT_APP_PATH=' . base_path());
+
+    try {
+        Livewire::test(RefererPage::class)
+            ->set('siteId', (int) $firstSite->getKey())
+            ->assertSee((string) __('capell-referer::report.empty'));
+
+        $this->artisan('capell:referer:screenshot-fixture', ['--force' => true])->assertSuccessful();
+        $this->artisan('capell:referer:screenshot-fixture', ['--force' => true])->assertSuccessful();
+
+        foreach ([$firstSite, $secondSite] as $site) {
+            expect(DB::table('referer_daily_counts')->where('site_id', $site->getKey())->count())->toBe(4)
+                ->and((int) DB::table('referer_source_totals')->where('site_id', $site->getKey())->sum('count'))->toBe(224);
+
+            Livewire::test(RefererPage::class)
+                ->set('siteId', (int) $site->getKey())
+                ->assertSee('Google')
+                ->assertSee('128')
+                ->assertSee('57.1%')
+                ->assertSee('LinkedIn')
+                ->assertDontSee((string) __('capell-referer::report.empty'));
+        }
+    } finally {
+        putenv($originalFixture === false ? 'CAPELL_SCREENSHOT_FIXTURE' : 'CAPELL_SCREENSHOT_FIXTURE=' . $originalFixture);
+        putenv($originalPath === false ? 'CAPELL_SCREENSHOT_APP_PATH' : 'CAPELL_SCREENSHOT_APP_PATH=' . $originalPath);
+    }
+});
+
+it('refuses screenshot writes without force or the disposable environment', function (): void {
+    $this->artisan('capell:referer:screenshot-fixture')->assertFailed();
+    $this->artisan('capell:referer:screenshot-fixture', ['--force' => true])->assertFailed();
+    expect(DB::table('referer_daily_counts')->count())->toBe(0);
+});
+
+it('refuses screenshot writes in production even with fixture flags', function (): void {
+    $originalFixture = getenv('CAPELL_SCREENSHOT_FIXTURE');
+    $originalPath = getenv('CAPELL_SCREENSHOT_APP_PATH');
+    putenv('CAPELL_SCREENSHOT_FIXTURE=record-state');
+    putenv('CAPELL_SCREENSHOT_APP_PATH=' . base_path());
+    config(['app.env' => 'production']);
+
+    try {
+        expect(fn (): int => SeedRefererScreenshotFixtureAction::run())->toThrow(RuntimeException::class)
+            ->and(DB::table('referer_daily_counts')->count())->toBe(0);
+    } finally {
+        putenv($originalFixture === false ? 'CAPELL_SCREENSHOT_FIXTURE' : 'CAPELL_SCREENSHOT_FIXTURE=' . $originalFixture);
+        putenv($originalPath === false ? 'CAPELL_SCREENSHOT_APP_PATH' : 'CAPELL_SCREENSHOT_APP_PATH=' . $originalPath);
+    }
 });

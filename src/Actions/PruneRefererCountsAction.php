@@ -6,10 +6,12 @@ namespace Capell\Referer\Actions;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class PruneRefererCountsAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(?int $retentionDays = null, int $batchSize = 500, bool $dryRun = false): int

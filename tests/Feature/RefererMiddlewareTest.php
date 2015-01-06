@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Site;
 use Capell\Frontend\Contracts\FrontendContextReader;
-use Capell\Referer\Actions\RecordRefererCountAction;
-use Capell\Referer\Actions\ResolveReferralSourceAction;
 use Capell\Referer\Http\Middleware\RecordRefererMiddleware;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
@@ -43,11 +41,7 @@ it('records an external referrer after a successful HTML origin response without
     $context->shouldReceive('site')->once()->andReturn($site);
     $context->shouldReceive('isError')->once()->andReturnFalse();
 
-    $middleware = new RecordRefererMiddleware(
-        $context,
-        resolve(ResolveReferralSourceAction::class),
-        resolve(RecordRefererCountAction::class),
-    );
+    $middleware = new RecordRefererMiddleware($context);
     $request = Request::create('/', 'GET', [], [], [], [
         'HTTP_HOST' => 'www.example.com',
         'HTTP_REFERER' => 'https://www.google.com/search?q=capell',
@@ -67,11 +61,7 @@ it('does not collect assets, redirects, or non-HTML responses', function (): voi
     $context = Mockery::mock(FrontendContextReader::class);
     $context->shouldReceive('site')->never();
     $context->shouldReceive('isError')->never();
-    $middleware = new RecordRefererMiddleware(
-        $context,
-        resolve(ResolveReferralSourceAction::class),
-        resolve(RecordRefererCountAction::class),
-    );
+    $middleware = new RecordRefererMiddleware($context);
 
     $asset = Request::create('/build/app.js', 'GET', [], [], [], ['HTTP_REFERER' => 'https://www.google.com']);
     $redirect = Request::create('/', 'GET', [], [], [], ['HTTP_REFERER' => 'https://www.google.com']);

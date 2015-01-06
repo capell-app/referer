@@ -10,10 +10,10 @@ declare(strict_types=1);
 use Capell\Referer\Actions\RecordRefererCountAction;
 use Capell\Referer\Actions\ResolveReferralSourceAction;
 
-$source = resolve(ResolveReferralSourceAction::class)->handle($request, $site);
+$source = ResolveReferralSourceAction::run($request, $site);
 
 if ($source !== null) {
-    resolve(RecordRefererCountAction::class)->handle($site, $source);
+    RecordRefererCountAction::run($site, $source);
 }
 ```
 

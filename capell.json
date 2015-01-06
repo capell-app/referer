@@ -71,9 +71,13 @@
         {
             "type": "console-command",
             "class": "Capell\\Referer\\Manifest\\RefererConsoleCommandsContribution",
-            "commands": ["capell:referer:prune"],
+            "commands": [
+                "capell:referer:prune",
+                "capell:referer:screenshot-fixture"
+            ],
             "commandClasses": [
-                "Capell\\Referer\\Console\\Commands\\PruneRefererCountsCommand"
+                "Capell\\Referer\\Console\\Commands\\PruneRefererCountsCommand",
+                "Capell\\Referer\\Console\\Commands\\SeedRefererScreenshotFixtureCommand"
             ]
         },
         {
@@ -101,7 +105,7 @@
     "commands": {
         "install": null,
         "setup": null,
-        "demo": null,
+        "demo": "capell:referer:screenshot-fixture",
         "doctor": null,
         "prune": "capell:referer:prune",
         "maintenance": ["capell:referer:prune"]
@@ -181,8 +185,6 @@
         "categories": ["admin", "growth"]
     },
     "contributionTraceability": {
-        "deferredContributions": [
-            "cache-hit measurement requires an extension hook before frontend cache short-circuiting"
-        ]
+        "deferredContributions": []
     }
 }

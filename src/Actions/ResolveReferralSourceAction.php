@@ -9,12 +9,14 @@ use Capell\Core\Models\SiteDomain;
 use Capell\Referer\Data\ReferralSourceData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Spatie\Referer\Sources\RequestHeader;
 use Throwable;
 
 final class ResolveReferralSourceAction
 {
+    use AsFake;
     use AsObject;
 
     public function __construct(private readonly RequestHeader $requestHeader) {}

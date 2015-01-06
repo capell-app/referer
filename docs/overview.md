@@ -14,6 +14,9 @@ denominator, so the displayed shares describe all measured referral sources.
 Report results are cached for 60 seconds. Refresh uses a short per-site/window
 lock and never polls or changes frontend delivery.
 
+HTML cache hits are not measured: measurement needs an extension hook
+before the cache short-circuits the request. This integration remains deferred.
+
 ---
 
 For how to use Referers, see the [admin guide](admin-guide.md).

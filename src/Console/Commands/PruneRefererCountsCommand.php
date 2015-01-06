@@ -13,7 +13,7 @@ final class PruneRefererCountsCommand extends Command
 
     protected $description = 'Prune expired daily referral counters while preserving lifetime totals.';
 
-    public function handle(PruneRefererCountsAction $prune): int
+    public function handle(): int
     {
         $days = $this->option('days');
         $batch = $this->option('batch');
@@ -26,7 +26,7 @@ final class PruneRefererCountsCommand extends Command
             return self::FAILURE;
         }
 
-        $deleted = $prune->handle($retentionDays, $batchSize, (bool) $this->option('dry-run'));
+        $deleted = PruneRefererCountsAction::run($retentionDays, $batchSize, (bool) $this->option('dry-run'));
         $verb = $this->option('dry-run') ? 'eligible' : 'deleted';
         $this->info(sprintf('%d daily referral rows %s.', $deleted, $verb));
 

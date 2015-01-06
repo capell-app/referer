@@ -18,8 +18,6 @@ final class RecordRefererMiddleware
 {
     public function __construct(
         private readonly FrontendContextReader $frontendContext,
-        private readonly ResolveReferralSourceAction $resolveReferralSource,
-        private readonly RecordRefererCountAction $recordRefererCount,
     ) {}
 
     public function handle(Request $request, Closure $next): Response
@@ -43,10 +41,10 @@ final class RecordRefererMiddleware
                 return $response;
             }
 
-            $source = $this->resolveReferralSource->handle($request, $site);
+            $source = ResolveReferralSourceAction::run($request, $site);
 
             if ($source instanceof ReferralSourceData) {
-                $this->recordRefererCount->handle($site, $source);
+                RecordRefererCountAction::run($site, $source);
             }
         } catch (Throwable) {
             // Referral measurement is strictly best-effort and cannot change page delivery.

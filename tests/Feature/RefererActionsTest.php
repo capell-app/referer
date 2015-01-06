@@ -60,38 +60,41 @@ it('normalises recognised, unknown, and unsafe referral headers without persisti
     $site = new Site;
     $site->setAttribute('id', 7);
 
-    $resolve = resolve(ResolveReferralSourceAction::class);
+    $googleSource = ResolveReferralSourceAction::run(requestWithReferer('https://www.google.co.uk/search?q=capell'), $site);
+    $externalSource = ResolveReferralSourceAction::run(requestWithReferer('https://example.org/news'), $site);
+    $trailingDotSource = ResolveReferralSourceAction::run(requestWithReferer('https://www.google.com.'), $site);
+    $internationalSource = ResolveReferralSourceAction::run(requestWithReferer('https://xn--e1afmkfd.xn--p1ai/'), $site);
 
-    expect($resolve->handle(requestWithReferer('https://www.google.co.uk/search?q=capell'), $site)?->key)
+    expect($googleSource?->key)
         ->toBe('google')
-        ->and($resolve->handle(requestWithReferer('https://example.org/news'), $site)?->key)
+        ->and($externalSource?->key)
         ->toBe('other_external')
-        ->and($resolve->handle(requestWithReferer('https://user:pass@example.org/news'), $site))
+        ->and(ResolveReferralSourceAction::run(requestWithReferer('https://user:pass@example.org/news'), $site))
         ->toBeNull()
-        ->and($resolve->handle(requestWithReferer('http://127.0.0.1/private'), $site))
+        ->and(ResolveReferralSourceAction::run(requestWithReferer('http://127.0.0.1/private'), $site))
         ->toBeNull()
-        ->and($resolve->handle(requestWithReferer(str_repeat('a', 2049)), $site))
+        ->and(ResolveReferralSourceAction::run(requestWithReferer(str_repeat('a', 2049)), $site))
         ->toBeNull()
-        ->and($resolve->handle(requestWithReferer('https://www.google.com.'), $site)?->key)
+        ->and($trailingDotSource?->key)
         ->toBe('google')
-        ->and($resolve->handle(requestWithReferer('https://www.google.com.../'), $site))
+        ->and(ResolveReferralSourceAction::run(requestWithReferer('https://www.google.com.../'), $site))
         ->toBeNull()
-        ->and($resolve->handle(requestWithReferer("https://www.google.com/line\nitem"), $site))
+        ->and(ResolveReferralSourceAction::run(requestWithReferer("https://www.google.com/line\nitem"), $site))
         ->toBeNull()
-        ->and($resolve->handle(requestWithReferer('https://xn--e1afmkfd.xn--p1ai/'), $site)?->key)
+        ->and($internationalSource?->key)
         ->toBe('other_external')
-        ->and($resolve->handle(requestWithReferer('https://machine.ｌｏｃａｌ/'), $site))
+        ->and(ResolveReferralSourceAction::run(requestWithReferer('https://machine.ｌｏｃａｌ/'), $site))
         ->toBeNull()
-        ->and($resolve->handle(requestWithReferer('http://[::1'), $site))
+        ->and(ResolveReferralSourceAction::run(requestWithReferer('http://[::1'), $site))
         ->toBeNull()
-        ->and($resolve->handle(requestWithReferer('https://www.example.com/from-alias'), $site))
+        ->and(ResolveReferralSourceAction::run(requestWithReferer('https://www.example.com/from-alias'), $site))
         ->toBeNull();
 
     $site->setRelation('siteDomains', collect([
         new SiteDomain(['domain' => 'alias.example.net']),
     ]));
 
-    expect($resolve->handle(requestWithReferer('https://alias.example.net/page', 'www.other-site.test'), $site))
+    expect(ResolveReferralSourceAction::run(requestWithReferer('https://alias.example.net/page', 'www.other-site.test'), $site))
         ->toBeNull();
 });
 

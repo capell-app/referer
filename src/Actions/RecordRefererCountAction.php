@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Capell\Referer\Actions;
 
+use Capell\Core\Enums\Database\DatabaseFamily;
+use Capell\Core\Facades\CapellDatabase;
 use Capell\Core\Models\Site;
 use Capell\Referer\Data\ReferralSourceData;
 use Closure;
 use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use PDO;
 use RuntimeException;
@@ -17,6 +20,7 @@ use Throwable;
 
 final class RecordRefererCountAction
 {
+    use AsFake;
     use AsObject;
 
     public function __construct(private readonly RefererHealthSignal $healthSignal) {}
@@ -113,14 +117,13 @@ final class RecordRefererCountAction
     private function incrementExpression(string $table): Expression
     {
         $connection = DB::connection();
-        $expression = match ($connection->getDriverName()) {
-            'pgsql' => match ($table) {
+        $expression = match (CapellDatabase::for($connection)->family()) {
+            DatabaseFamily::PostgreSql => match ($table) {
                 'referer_daily_counts' => '"referer_daily_counts"."count" + 1',
                 'referer_source_totals' => '"referer_source_totals"."count" + 1',
                 default => throw new RuntimeException('The referral counter table is not supported.'),
             },
-            'mysql', 'mariadb', 'sqlite' => 'count + 1',
-            default => throw new RuntimeException('The referral counter driver is not supported.'),
+            DatabaseFamily::MySql, DatabaseFamily::MariaDb, DatabaseFamily::Sqlite => 'count + 1',
         };
 
         return DB::raw($expression);
@@ -134,11 +137,10 @@ final class RecordRefererCountAction
             max(100, $this->positiveConfigInteger('capell-referer.write_timeout_ms', 1000)),
         );
 
-        return match ($connection->getDriverName()) {
-            'pgsql' => $this->applyPostgresTimeout($connection, $timeoutMilliseconds),
-            'sqlite' => $this->applySqliteTimeout($connection, $timeoutMilliseconds),
-            'mysql', 'mariadb' => $this->applyMySqlTimeout($connection, $timeoutMilliseconds),
-            default => throw new RuntimeException('The configured database driver has no supported referral write timeout.'),
+        return match (CapellDatabase::for($connection)->family()) {
+            DatabaseFamily::PostgreSql => $this->applyPostgresTimeout($connection, $timeoutMilliseconds),
+            DatabaseFamily::Sqlite => $this->applySqliteTimeout($connection, $timeoutMilliseconds),
+            DatabaseFamily::MySql, DatabaseFamily::MariaDb => $this->applyMySqlTimeout($connection, $timeoutMilliseconds),
         };
     }
 

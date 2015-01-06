@@ -12,12 +12,14 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Throwable;
 use UnexpectedValueException;
 
 final class BuildRefererReportAction
 {
+    use AsFake;
     use AsObject;
 
     public function __construct(private readonly RefererHealthSignal $healthSignal) {}
