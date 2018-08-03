@@ -32,6 +32,7 @@ jobs:
       SOURCE_PR_URL: ${{ github.event.pull_request.html_url }}
       SOURCE_PR_BASE: ${{ github.event.pull_request.base.ref }}
       SOURCE_PR_HEAD: ${{ github.event.pull_request.head.ref }}
+      SOURCE_PR_STATE: ${{ github.event.action }}
       MONOREPO_REPOSITORY: capell-app/capell-packages
       MONOREPO_BASE: main
     steps:

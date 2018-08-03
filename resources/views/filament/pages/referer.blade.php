@@ -1,8 +1,14 @@
 <x-filament-panels::page>
-    <form wire:submit="applyFilters" class="space-y-6">
+    <form
+        wire:submit="applyFilters"
+        class="space-y-6"
+    >
         <div class="grid gap-4 md:grid-cols-4">
             <x-filament::input.wrapper>
-                <x-filament::input.select wire:model="siteId" aria-label="{{ __('capell-referer::report.site') }}">
+                <x-filament::input.select
+                    wire:model="siteId"
+                    aria-label="{{ __('capell-referer::report.site') }}"
+                >
                     @foreach ($sites as $id => $name)
                         <option value="{{ $id }}">{{ $name }}</option>
                     @endforeach
@@ -10,7 +16,10 @@
             </x-filament::input.wrapper>
 
             <x-filament::input.wrapper>
-                <x-filament::input.select wire:model.live="preset" aria-label="{{ __('capell-referer::report.window') }}">
+                <x-filament::input.select
+                    wire:model.live="preset"
+                    aria-label="{{ __('capell-referer::report.window') }}"
+                >
                     @foreach ($presetOptions as $value => $label)
                         <option value="{{ $value }}">{{ $label }}</option>
                     @endforeach
@@ -18,17 +27,33 @@
             </x-filament::input.wrapper>
 
             <x-filament::input.wrapper :hidden="$preset !== 'custom'">
-                <x-filament::input type="date" wire:model="startsOn" aria-label="{{ __('capell-referer::report.starts_on') }}" />
+                <x-filament::input
+                    type="date"
+                    wire:model="startsOn"
+                    aria-label="{{ __('capell-referer::report.starts_on') }}"
+                />
             </x-filament::input.wrapper>
 
             <x-filament::input.wrapper :hidden="$preset !== 'custom'">
-                <x-filament::input type="date" wire:model="endsOn" aria-label="{{ __('capell-referer::report.ends_on') }}" />
+                <x-filament::input
+                    type="date"
+                    wire:model="endsOn"
+                    aria-label="{{ __('capell-referer::report.ends_on') }}"
+                />
             </x-filament::input.wrapper>
         </div>
 
         <div class="flex gap-2">
-            <x-filament::button type="submit">{{ __('capell-referer::report.apply') }}</x-filament::button>
-            <x-filament::button type="button" color="gray" wire:click="refreshReport">{{ __('capell-referer::report.refresh') }}</x-filament::button>
+            <x-filament::button
+                type="submit"
+                >{{ __('capell-referer::report.apply') }}</x-filament::button
+            >
+            <x-filament::button
+                type="button"
+                color="gray"
+                wire:click="refreshReport"
+                >{{ __('capell-referer::report.refresh') }}</x-filament::button
+            >
         </div>
 
         @error('siteId')
@@ -59,25 +84,34 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b text-left">
-                            <th class="px-3 py-2">{{ __('capell-referer::report.source') }}</th>
-                            <th class="px-3 py-2">{{ __('capell-referer::report.requests') }}</th>
-                            <th class="px-3 py-2">{{ __('capell-referer::report.share') }}</th>
+                            <th class="px-3 py-2">
+                                {{ __('capell-referer::report.source') }}
+                            </th>
+                            <th class="px-3 py-2">
+                                {{ __('capell-referer::report.requests') }}
+                            </th>
+                            <th class="px-3 py-2">
+                                {{ __('capell-referer::report.share') }}
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($reportRows as $row)
                             <tr class="border-b last:border-0">
                                 <td class="px-3 py-2">{{ $row->label }}</td>
-                                <td class="px-3 py-2">{{ number_format($row->count) }}</td>
-                                <td class="px-3 py-2">{{ number_format($row->share, 1) }}%</td>
+                                <td class="px-3 py-2">
+                                    {{ number_format($row->count) }}
+                                </td>
+                                <td class="px-3 py-2">
+                                    {{ number_format($row->share, 1) }}%
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
             <p class="mt-4 text-xs text-gray-500">
-                {{ __('capell-referer::report.measured', ['count' => number_format($report->measuredRequests)]) }}
-                {{ __('capell-referer::report.utc') }}
+                {{ __('capell-referer::report.measured', ['count' => number_format($report->measuredRequests)]) }} {{ __('capell-referer::report.utc') }}
             </p>
             <p class="mt-2 text-xs text-gray-500">{{ __('capell-referer::report.coverage') }}</p>
             @if ($report->collectionStartedOn instanceof \Carbon\CarbonImmutable)
@@ -88,11 +122,23 @@
             @endif
             @if ($reportPages > 1)
                 <div class="mt-4 flex items-center justify-between">
-                    <x-filament::button type="button" color="gray" :disabled="$reportPage <= 1" wire:click="$set('reportPage', {{ max(1, $reportPage - 1) }})">
+                    <x-filament::button
+                        type="button"
+                        color="gray"
+                        :disabled="$reportPage <= 1"
+                        wire:click="$set('reportPage', {{ max(1, $reportPage - 1) }})"
+                    >
                         {{ __('capell-referer::report.previous_page') }}
                     </x-filament::button>
-                    <span class="text-xs text-gray-500">{{ $reportPage }} / {{ $reportPages }}</span>
-                    <x-filament::button type="button" color="gray" :disabled="$reportPage >= $reportPages" wire:click="$set('reportPage', {{ min($reportPages, $reportPage + 1) }})">
+                    <span class="text-xs text-gray-500"
+                        >{{ $reportPage }} / {{ $reportPages }}</span
+                    >
+                    <x-filament::button
+                        type="button"
+                        color="gray"
+                        :disabled="$reportPage >= $reportPages"
+                        wire:click="$set('reportPage', {{ min($reportPages, $reportPage + 1) }})"
+                    >
                         {{ __('capell-referer::report.next_page') }}
                     </x-filament::button>
                 </div>

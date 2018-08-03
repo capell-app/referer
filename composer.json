@@ -1,7 +1,13 @@
 {
     "name": "capell-app/referer",
     "description": "Privacy-preserving aggregate referral reporting for Capell sites.",
-    "keywords": ["capell", "referer", "referrer", "analytics", "filamentphp"],
+    "keywords": [
+        "capell",
+        "referer",
+        "referrer",
+        "analytics",
+        "filamentphp"
+    ],
     "homepage": "https://github.com/capell-app/referer",
     "license": "proprietary",
     "authors": [

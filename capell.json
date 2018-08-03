@@ -15,7 +15,11 @@
     "namespace": "Capell\\Referer",
     "surfaces": ["admin", "frontend", "console"],
     "dependencies": {
-        "requires": ["capell-app/admin", "capell-app/core", "capell-app/frontend"],
+        "requires": [
+            "capell-app/admin",
+            "capell-app/core",
+            "capell-app/frontend"
+        ],
         "supports": [],
         "conflicts": []
     },
@@ -37,7 +41,9 @@
         {
             "type": "dashboard-widget",
             "class": "Capell\\Referer\\Manifest\\RefererDashboardFilamentWidgetsContribution",
-            "widgetClasses": ["Capell\\Referer\\Filament\\Widgets\\TopRefererSourcesFilamentWidget"]
+            "widgetClasses": [
+                "Capell\\Referer\\Filament\\Widgets\\TopRefererSourcesFilamentWidget"
+            ]
         },
         {
             "type": "model",
@@ -55,14 +61,20 @@
         {
             "type": "migration",
             "class": "Capell\\Referer\\Manifest\\RefererMigrationsContribution",
-            "tables": ["referer_daily_counts", "referer_source_totals", "referer_retention_state"],
+            "tables": [
+                "referer_daily_counts",
+                "referer_source_totals",
+                "referer_retention_state"
+            ],
             "migrationFiles": ["2026_09_14_000001_create_referer_counts_tables"]
         },
         {
             "type": "console-command",
             "class": "Capell\\Referer\\Manifest\\RefererConsoleCommandsContribution",
             "commands": ["capell:referer:prune"],
-            "commandClasses": ["Capell\\Referer\\Console\\Commands\\PruneRefererCountsCommand"]
+            "commandClasses": [
+                "Capell\\Referer\\Console\\Commands\\PruneRefererCountsCommand"
+            ]
         },
         {
             "type": "scheduled-job",
@@ -80,7 +92,11 @@
     "database": {
         "migrations": true,
         "settings": false,
-        "requiredTables": ["referer_daily_counts", "referer_source_totals", "referer_retention_state"]
+        "requiredTables": [
+            "referer_daily_counts",
+            "referer_source_totals",
+            "referer_retention_state"
+        ]
     },
     "commands": {
         "install": null,
@@ -92,7 +108,12 @@
     },
     "settings": [],
     "permissions": ["View:RefererPage"],
-    "capabilities": ["referer", "aggregate-referral-reporting", "privacy-bounded-collection", "utc-daily-retention"],
+    "capabilities": [
+        "referer",
+        "aggregate-referral-reporting",
+        "privacy-bounded-collection",
+        "utc-daily-retention"
+    ],
     "security": {
         "riskTier": "standard",
         "publicSurface": {
@@ -148,7 +169,7 @@
         }
     ],
     "commercial": {
-        "proposedLicense": "free",
+        "proposedLicense": "paid",
         "requestedCertification": "first-party",
         "supportPolicy": "priority",
         "privateDocsRequested": true
@@ -160,6 +181,8 @@
         "categories": ["admin", "growth"]
     },
     "contributionTraceability": {
-        "deferredContributions": ["cache-hit measurement requires an extension hook before frontend cache short-circuiting"]
+        "deferredContributions": [
+            "cache-hit measurement requires an extension hook before frontend cache short-circuiting"
+        ]
     }
 }

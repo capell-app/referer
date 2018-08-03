@@ -17,8 +17,8 @@ last-30-day window. Its **View all** link opens the full report.
 
 ## Troubleshooting
 
-| What you see | What it means | What to do |
-| --- | --- | --- |
-| The report is unavailable | The counter tables could not be queried | Check database connectivity, package migrations, and the Referers health check |
-| The report is empty | No successful referral-bearing HTML page requests were observed in the selected window | Check the window and remember that missing headers, cache/CDN bypasses, and static exports are outside this report |
-| The Referrers page is missing | The package is not installed or the actor lacks the view permission | Confirm installation and grant `View:RefererPage` within the existing site scope |
+| What you see                  | What it means                                                                          | What to do                                                                                                         |
+| ----------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| The report is unavailable     | The counter tables could not be queried                                                | Check database connectivity, package migrations, and the Referers health check                                     |
+| The report is empty           | No successful referral-bearing HTML page requests were observed in the selected window | Check the window and remember that missing headers, cache/CDN bypasses, and static exports are outside this report |
+| The Referrers page is missing | The package is not installed or the actor lacks the view permission                    | Confirm installation and grant `View:RefererPage` within the existing site scope                                   |
