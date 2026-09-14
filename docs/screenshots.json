@@ -1,0 +1,20 @@
+{
+    "package": "referer",
+    "composerName": "capell-app/referer",
+    "generatedFor": "deployment-screenshot-runner",
+    "requiresInstalledPackage": true,
+    "outputDirectory": "packages/referer/docs/screenshots",
+    "entries": [],
+    "notCaptured": [
+        {
+            "id": "referer-installed-admin-report",
+            "surface": "admin",
+            "reason": "No installed-App screenshot was captured in this implementation pass; the report requires a consuming Capell App with the package installed and seeded site-scoped admin data."
+        },
+        {
+            "id": "referer-cache-hit-boundary",
+            "surface": "frontend",
+            "reason": "Core currently short-circuits HTML-cache hits before frontend site resolution and exposes no cache-hit extension hook, so this boundary remains documented as an integration gap."
+        }
+    ]
+}

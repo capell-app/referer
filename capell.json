@@ -1,0 +1,165 @@
+{
+    "manifest-version": 3,
+    "name": "capell-app/referer",
+    "slug": "referer",
+    "displayName": "Referers",
+    "kind": "package",
+    "capellApiVersion": "^1.0",
+    "version": "1.x-dev",
+    "description": "Privacy-preserving aggregate referral reporting for successful Capell HTML page requests, without storing raw URLs, identifiers, or event records.",
+    "product": {
+        "group": "Capell Marketing & Growth",
+        "tier": "premium",
+        "bundle": "marketing-growth"
+    },
+    "namespace": "Capell\\Referer",
+    "surfaces": ["admin", "frontend", "console"],
+    "dependencies": {
+        "requires": ["capell-app/admin", "capell-app/core", "capell-app/frontend"],
+        "supports": [],
+        "conflicts": []
+    },
+    "providers": {
+        "metadata": [],
+        "install": [],
+        "runtime": ["Capell\\Referer\\Providers\\RefererServiceProvider"],
+        "admin": ["Capell\\Referer\\Providers\\AdminServiceProvider"],
+        "frontend": []
+    },
+    "contributes": [
+        {
+            "type": "admin-page",
+            "class": "Capell\\Referer\\Manifest\\RefererAdminPageContribution",
+            "pageClass": "Capell\\Referer\\Filament\\Pages\\RefererPage",
+            "labelKey": "capell-referer::package.navigation",
+            "permission": "View:RefererPage"
+        },
+        {
+            "type": "dashboard-widget",
+            "class": "Capell\\Referer\\Manifest\\RefererDashboardFilamentWidgetsContribution",
+            "widgetClasses": ["Capell\\Referer\\Filament\\Widgets\\TopRefererSourcesFilamentWidget"]
+        },
+        {
+            "type": "model",
+            "class": "Capell\\Referer\\Manifest\\RefererModelsContribution",
+            "modelClasses": [
+                "Capell\\Referer\\Models\\RefererDailyCount",
+                "Capell\\Referer\\Models\\RefererSourceTotal"
+            ]
+        },
+        {
+            "type": "permission",
+            "class": "Capell\\Referer\\Manifest\\RefererPermissionsContribution",
+            "permissions": ["View:RefererPage"]
+        },
+        {
+            "type": "migration",
+            "class": "Capell\\Referer\\Manifest\\RefererMigrationsContribution",
+            "tables": ["referer_daily_counts", "referer_source_totals", "referer_retention_state"],
+            "migrationFiles": ["2026_09_14_000001_create_referer_counts_tables"]
+        },
+        {
+            "type": "console-command",
+            "class": "Capell\\Referer\\Manifest\\RefererConsoleCommandsContribution",
+            "commands": ["capell:referer:prune"],
+            "commandClasses": ["Capell\\Referer\\Console\\Commands\\PruneRefererCountsCommand"]
+        },
+        {
+            "type": "scheduled-job",
+            "class": "Capell\\Referer\\Manifest\\RefererRetentionScheduleContribution",
+            "command": "capell:referer:prune",
+            "name": "capell-referer-retention",
+            "frequency": "daily"
+        },
+        {
+            "type": "health-check",
+            "class": "Capell\\Referer\\Manifest\\RefererHealthContribution",
+            "checkClass": "Capell\\Referer\\Health\\RefererHealthCheck"
+        }
+    ],
+    "database": {
+        "migrations": true,
+        "settings": false,
+        "requiredTables": ["referer_daily_counts", "referer_source_totals", "referer_retention_state"]
+    },
+    "commands": {
+        "install": null,
+        "setup": null,
+        "demo": null,
+        "doctor": null,
+        "prune": "capell:referer:prune",
+        "maintenance": ["capell:referer:prune"]
+    },
+    "settings": [],
+    "permissions": ["View:RefererPage"],
+    "capabilities": ["referer", "aggregate-referral-reporting", "privacy-bounded-collection", "utc-daily-retention"],
+    "security": {
+        "riskTier": "standard",
+        "publicSurface": {
+            "routeNames": [],
+            "auth": "none",
+            "csrfExemptRoutes": [],
+            "signedRoutes": [],
+            "tokenizedRoutes": [],
+            "webhookRoutes": [],
+            "throttledRoutes": []
+        },
+        "sensitiveData": {
+            "encryptedFields": [],
+            "hashedTokenFields": [],
+            "redactedOutputClasses": [],
+            "plaintextJustifications": []
+        },
+        "publicOutput": {
+            "cacheSafe": true,
+            "forbidAuthoringSurface": true,
+            "forbidSecrets": true,
+            "forbidPublicBladeQueries": true
+        },
+        "externalHttpClients": {
+            "requiresTimeouts": false,
+            "requiresSecretRedaction": false,
+            "clients": []
+        },
+        "adminSurface": {
+            "authorization": "permissions",
+            "permissions": ["View:RefererPage"]
+        }
+    },
+    "performance": {
+        "frontendRenderBudgetMs": 5,
+        "adminQueryBudget": 20,
+        "cacheTags": ["referer"],
+        "cacheSafety": {
+            "cacheable": false,
+            "variesBy": ["site", "window"],
+            "sensitiveOutput": false,
+            "invalidationSources": [],
+            "queueInvalidation": false
+        }
+    },
+    "healthChecks": [
+        {
+            "key": "referer.package-health",
+            "label": "Referer storage, frontend registration, and write health are discoverable by Diagnostics.",
+            "class": "Capell\\Referer\\Health\\RefererHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
+    "commercial": {
+        "proposedLicense": "paid",
+        "requestedCertification": "first-party",
+        "supportPolicy": "priority",
+        "privateDocsRequested": true
+    },
+    "marketplace": {
+        "summary": "Privacy-preserving aggregate referral reporting for Capell sites.",
+        "description": "Referers reports recognised sources and other external referrals using daily and lifetime counters. It deliberately stores no raw URLs, paths, query strings, IP addresses, cookies, sessions, user IDs, user agents, or event rows.",
+        "screenshots": [],
+        "categories": ["admin", "growth"]
+    },
+    "contributionTraceability": {
+        "deferredContributions": ["cache-hit measurement requires an extension hook before frontend cache short-circuiting"]
+    }
+}

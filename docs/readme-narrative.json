@@ -1,0 +1,35 @@
+{
+    "whatThisPluginAdds": {
+        "text": "Referers adds privacy-preserving aggregate referral reporting to Capell. It keeps daily and lifetime counters for finite source keys without storing raw URLs or request identifiers.",
+        "evidence": [
+            "src/Actions/ResolveReferralSourceAction.php",
+            "src/Actions/RecordRefererCountAction.php",
+            "database/migrations/2026_09_14_000001_create_referer_counts_tables.php"
+        ]
+    },
+    "surfaceOutcome": {
+        "text": "Administrators review site-scoped referral counts in a cached Referrers report and a small dashboard widget, while origin frontend renders record successful HTML responses best-effort.",
+        "evidence": [
+            "src/Filament/Pages/RefererPage.php",
+            "src/Filament/Widgets/TopRefererSourcesFilamentWidget.php",
+            "src/Http/Middleware/RecordRefererMiddleware.php"
+        ]
+    },
+    "whyItMatters": {
+        "developers": {
+            "text": "Typed Actions, bounded validation, atomic upserts, and focused tests keep the privacy contract explicit at each boundary.",
+            "evidence": [
+                "src/Actions/BuildRefererReportAction.php",
+                "src/Actions/PruneRefererCountsAction.php",
+                "tests/Feature/RefererActionsTest.php"
+            ]
+        },
+        "teams": {
+            "text": "Site teams can see which configured external sources contribute successful page requests without receiving a browsing-event log.",
+            "evidence": [
+                "docs/admin-guide.md",
+                "resources/views/filament/pages/referer.blade.php"
+            ]
+        }
+    }
+}

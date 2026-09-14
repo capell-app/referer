@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'site' => 'Site',
+    'window' => 'Window',
+    'starts_on' => 'From',
+    'ends_on' => 'To',
+    'apply' => 'Apply filters',
+    'refresh' => 'Refresh report',
+    'results' => 'Referral sources',
+    'source' => 'Source',
+    'requests' => 'Successful page requests',
+    'share' => 'Share',
+    'measured' => ':count successful page requests measured.',
+    'utc' => 'Dates use UTC. Unmapped external sources are grouped as Other external.',
+    'coverage' => 'Only successful HTML page requests observed by this application are included. Requests without a referral header and traffic that bypasses the application are outside this report.',
+    'empty' => 'No referred requests recorded for this period.',
+    'unavailable' => 'Referral data is temporarily unavailable. Try again later.',
+    'collection_started' => 'Collection started :date.',
+    'available_through' => 'Daily data is available through :date.',
+    'previous_page' => 'Previous',
+    'next_page' => 'Next',
+    'top_sources' => 'Top referral sources',
+    'invalid_date' => 'Enter a valid UTC date in YYYY-MM-DD format.',
+    'invalid_window' => 'Choose a valid reporting window.',
+    'window_reversed' => 'The end date must be on or after the start date.',
+    'window_future' => 'Referral reports cannot include future dates.',
+    'window_expired' => 'Daily referral data is available from :date onwards.',
+    'presets' => [
+        'today' => 'Today',
+        'yesterday' => 'Yesterday',
+        'last-7-days' => 'Last 7 days',
+        'last-30-days' => 'Last 30 days',
+        'last-90-days' => 'Last 90 days',
+        'this-month' => 'This month',
+        'previous-month' => 'Previous month',
+        'all-time' => 'All time',
+        'custom' => 'Custom dates',
+    ],
+];
