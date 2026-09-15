@@ -117,6 +117,18 @@ it('increments daily and lifetime counters atomically', function (): void {
         ->and(DB::table('referer_source_totals')->count())->toBe(1);
 });
 
+it('rejects source keys outside the configured bounded source set before writing', function (): void {
+    $site = new Site;
+    $site->setAttribute('id', 7);
+
+    expect(RecordRefererCountAction::run($site, new ReferralSourceData('google')))->toBeTrue()
+        ->and(RecordRefererCountAction::run($site, new ReferralSourceData('other_external')))->toBeTrue()
+        ->and(RecordRefererCountAction::run($site, new ReferralSourceData('customer-example')))->toBeFalse()
+        ->and(RecordRefererCountAction::run($site, new ReferralSourceData('support@example.test')))->toBeFalse()
+        ->and(DB::table('referer_daily_counts')->pluck('source_key')->all())->toBe(['google', 'other_external'])
+        ->and(DB::table('referer_source_totals')->pluck('source_key')->all())->toBe(['google', 'other_external']);
+});
+
 it('resolves bounded UTC windows and rejects expired or future custom dates', function (): void {
     expect(ResolveRefererWindowAction::run('last-30-days')->cacheKey())->toBe('2026-08-16:2026-09-14')
         ->and(ResolveRefererWindowAction::run('all-time')->allTime)->toBeTrue();
@@ -203,6 +215,22 @@ it('prunes only expired daily rows and preserves lifetime totals', function (): 
 
     expect(fn (): mixed => ResolveRefererWindowAction::run('custom', '2025-08-10', '2025-08-10'))
         ->toThrow(ValidationException::class);
+});
+
+it('clamps the dashboard period to the retained daily range', function (): void {
+    PruneRefererCountsAction::run(7);
+
+    $window = resolve(ResolveRefererWindowAction::class)->latestAvailable(30);
+
+    expect($window->startsOn?->toDateString())->toBe('2026-09-08')
+        ->and($window->endsOn?->toDateString())->toBe('2026-09-14')
+        ->and($window->allTime)->toBeFalse();
+
+    PruneRefererCountsAction::run(1);
+    $singleDayWindow = resolve(ResolveRefererWindowAction::class)->latestAvailable(30);
+
+    expect($singleDayWindow->startsOn?->toDateString())->toBe('2026-09-14')
+        ->and($singleDayWindow->endsOn?->toDateString())->toBe('2026-09-14');
 });
 
 it('rolls back daily pruning when the retention boundary cannot be recorded', function (): void {

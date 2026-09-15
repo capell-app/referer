@@ -43,13 +43,7 @@ final class ResolveRefererWindowAction
             [$start, $end] = $this->presetDates($preset, $today);
         }
 
-        $retentionDays = $this->positiveConfigInteger('capell-referer.retention_days', 400);
-        $oldestAvailable = $today->subDays($retentionDays - 1);
-        $recordedBoundary = $this->recordedRetentionBoundary();
-
-        if ($recordedBoundary instanceof CarbonImmutable && $recordedBoundary->greaterThan($oldestAvailable)) {
-            $oldestAvailable = $recordedBoundary;
-        }
+        $oldestAvailable = $this->oldestAvailableDate($today);
 
         if ($start->lessThan($oldestAvailable)) {
             throw ValidationException::withMessages([
@@ -70,6 +64,23 @@ final class ResolveRefererWindowAction
         }
 
         return new RefererWindowData($start, $end);
+    }
+
+    public function latestAvailable(int $maximumDays): RefererWindowData
+    {
+        $today = CarbonImmutable::today('UTC');
+        $startsOn = $today->subDays(max(1, $maximumDays) - 1);
+        $oldestAvailable = $this->oldestAvailableDate($today);
+
+        if ($startsOn->lessThan($oldestAvailable)) {
+            $startsOn = $oldestAvailable;
+        }
+
+        if ($startsOn->greaterThan($today)) {
+            $startsOn = $today;
+        }
+
+        return new RefererWindowData($startsOn, $today);
     }
 
     /** @return array{CarbonImmutable, CarbonImmutable} */
@@ -120,5 +131,18 @@ final class ResolveRefererWindowAction
         } catch (Throwable) {
             return null;
         }
+    }
+
+    private function oldestAvailableDate(CarbonImmutable $today): CarbonImmutable
+    {
+        $retentionDays = $this->positiveConfigInteger('capell-referer.retention_days', 400);
+        $oldestAvailable = $today->subDays($retentionDays - 1);
+        $recordedBoundary = $this->recordedRetentionBoundary();
+
+        if ($recordedBoundary instanceof CarbonImmutable && $recordedBoundary->greaterThan($oldestAvailable)) {
+            return $recordedBoundary;
+        }
+
+        return $oldestAvailable;
     }
 }

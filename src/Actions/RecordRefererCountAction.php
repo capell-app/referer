@@ -23,6 +23,10 @@ final class RecordRefererCountAction
 
     public function handle(Site $site, ReferralSourceData $source): bool
     {
+        if (! $this->isPersistableSourceKey($source->key)) {
+            return false;
+        }
+
         $date = now('UTC')->toDateString();
 
         try {
@@ -64,6 +68,46 @@ final class RecordRefererCountAction
         }
 
         return true;
+    }
+
+    private function isPersistableSourceKey(string $key): bool
+    {
+        if ($key === 'other_external') {
+            return true;
+        }
+
+        if (! preg_match('/^[a-z0-9][a-z0-9_-]{0,63}$/', $key)) {
+            return false;
+        }
+
+        $configured = config('capell-referer.source_mappings', []);
+
+        if (! is_array($configured)) {
+            return false;
+        }
+
+        $maximum = $this->positiveConfigInteger('capell-referer.max_source_mappings', 500);
+        $accepted = 0;
+
+        foreach ($configured as $configuredKey => $hosts) {
+            if (! is_string($configuredKey)
+                || $configuredKey === 'other_external'
+                || ! preg_match('/^[a-z0-9][a-z0-9_-]{0,63}$/', $configuredKey)
+                || ! is_array($hosts)
+                || $hosts === []) {
+                continue;
+            }
+
+            if (++$accepted > $maximum) {
+                return false;
+            }
+
+            if ($configuredKey === $key) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function incrementExpression(string $table): Expression

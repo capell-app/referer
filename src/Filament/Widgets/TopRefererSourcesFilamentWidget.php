@@ -11,6 +11,7 @@ use Capell\Core\Models\Site;
 use Capell\Referer\Actions\BuildRefererReportAction;
 use Capell\Referer\Actions\RefererHealthSignal;
 use Capell\Referer\Actions\ResolveRefererWindowAction;
+use Capell\Referer\Data\RefererWindowData;
 use Capell\Referer\Filament\Pages\RefererPage;
 use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
@@ -76,13 +77,14 @@ final class TopRefererSourcesFilamentWidget extends BaseWidget implements Capell
     /** @return Collection<int, array{id: string, label: string, count: int, share: float}> */
     private function records(): Collection
     {
+        $this->assertCanView();
         $site = $this->currentSite();
 
         if (! $site instanceof Site) {
             return collect();
         }
 
-        $window = ResolveRefererWindowAction::run('last-30-days');
+        $window = $this->currentWindow();
 
         $report = BuildRefererReportAction::run($site, $window);
         $this->reportUnavailable = ! $report->available;
@@ -109,14 +111,25 @@ final class TopRefererSourcesFilamentWidget extends BaseWidget implements Capell
 
     private function allReportsUrl(): string
     {
+        $this->assertCanView();
         $site = $this->currentSite();
-        $window = ResolveRefererWindowAction::run('last-30-days');
+        $window = $this->currentWindow();
 
         return RefererPage::getUrl([
             'siteId' => $site?->getKey(),
-            'preset' => 'last-30-days',
+            'preset' => 'custom',
             'startsOn' => $window->startsOn?->toDateString(),
             'endsOn' => $window->endsOn?->toDateString(),
         ]);
+    }
+
+    private function currentWindow(): RefererWindowData
+    {
+        return resolve(ResolveRefererWindowAction::class)->latestAvailable(30);
+    }
+
+    private function assertCanView(): void
+    {
+        abort_unless(self::canView(), 403);
     }
 }

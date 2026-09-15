@@ -4,7 +4,7 @@
 
 ## What This Plugin Adds
 
-Referers is an **Available**, **Schema-owning** Capell package in the **Capell Marketing & Growth** product group. It ships as `capell-app/referer` and extends these surfaces: admin, frontend, console.
+Referers is a **Preview** Capell package in the **Capell Marketing & Growth** product group. It is intended to be a free acquisition, but is not yet enabled for stable distribution. It ships as `capell-app/referer` and extends these surfaces: admin, frontend, console.
 
 Referers adds privacy-preserving aggregate referral reporting to Capell. It keeps daily and lifetime counters for finite source keys without storing raw URLs or request identifiers.
 
@@ -14,8 +14,8 @@ Evidence: [`src/Actions/ResolveReferralSourceAction.php`](src/Actions/ResolveRef
 
 Status details:
 
-- Status: Available
-- Tier: premium
+- Status: Preview — not distribution-ready
+- Tier: premium; acquisition: free
 - Bundle: marketing-growth
 - Composer package: `capell-app/referer`
 - Namespace: `Capell\Referer`
@@ -159,8 +159,8 @@ Docs gap: add `docs/screenshots.json` before promoting this package with visual 
 
 ## Quick Start
 
-1. Install the package: `composer require capell-app/referer`.
-2. Open the package admin page or resource and verify Referers is available.
+1. For development evaluation only, install the moving development branch: `composer require capell-app/referer:dev-main`.
+2. Do not use this development listing as a stable production dependency. A tagged release remains gated on installed-App/cache-hit integration and the package's release evidence.
 
 ## Next Steps
 
