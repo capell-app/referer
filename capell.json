@@ -5,11 +5,11 @@
     "displayName": "Referers",
     "kind": "package",
     "capellApiVersion": "^1.0",
-    "version": "1.x-dev",
+    "version": "1.0.0",
     "description": "Privacy-preserving aggregate referral reporting for successful Capell HTML page requests, without storing raw URLs, identifiers, or event records.",
     "product": {
         "group": "Capell Marketing & Growth",
-        "tier": "premium",
+        "tier": "free",
         "bundle": "marketing-growth"
     },
     "namespace": "Capell\\Referer",
@@ -173,10 +173,10 @@
         }
     ],
     "commercial": {
-        "proposedLicense": "paid",
+        "proposedLicense": "free",
         "requestedCertification": "first-party",
-        "supportPolicy": "priority",
-        "privateDocsRequested": true
+        "supportPolicy": "capell-first-party",
+        "privateDocsRequested": false
     },
     "marketplace": {
         "summary": "Privacy-preserving aggregate referral reporting for Capell sites.",

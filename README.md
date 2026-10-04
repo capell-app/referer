@@ -10,12 +10,10 @@ Referers adds privacy-preserving aggregate referral reporting to Capell. It keep
 
 Administrators review site-scoped referral counts in a cached Referrers report and a small dashboard widget, while origin frontend renders record successful HTML responses best-effort.
 
-Evidence: [`src/Actions/ResolveReferralSourceAction.php`](src/Actions/ResolveReferralSourceAction.php), [`src/Actions/RecordRefererCountAction.php`](src/Actions/RecordRefererCountAction.php), [`database/migrations/2026_09_14_000001_create_referer_counts_tables.php`](database/migrations/2026_09_14_000001_create_referer_counts_tables.php), [`src/Filament/Pages/RefererPage.php`](src/Filament/Pages/RefererPage.php), [`src/Filament/Widgets/TopRefererSourcesFilamentWidget.php`](src/Filament/Widgets/TopRefererSourcesFilamentWidget.php), [`src/Http/Middleware/RecordRefererMiddleware.php`](src/Http/Middleware/RecordRefererMiddleware.php).
-
 Status details:
 
 - Status: Available
-- Tier: premium
+- Tier: free
 - Bundle: marketing-growth
 - Composer package: `capell-app/referer`
 - Namespace: `Capell\Referer`
@@ -27,17 +25,13 @@ Status details:
 
 **For teams:** Site teams can see which configured external sources contribute successful page requests without receiving a browsing-event log.
 
-Evidence: [`src/Actions/BuildRefererReportAction.php`](src/Actions/BuildRefererReportAction.php), [`src/Actions/PruneRefererCountsAction.php`](src/Actions/PruneRefererCountsAction.php), [`tests/Feature/RefererActionsTest.php`](tests/Feature/RefererActionsTest.php), [`docs/admin-guide.md`](docs/admin-guide.md), [`resources/views/filament/pages/referer.blade.php`](resources/views/filament/pages/referer.blade.php).
-
 ## Screens And Workflow
 
-The site-scoped admin report shows aggregate referral counts and source shares without exposing individual browsing events.
+Screenshot contract: `docs/screenshots.json`.
 
-![Referer admin report showing aggregate referral sources](docs/screenshots/referer-admin-report.png)
+![Site-scoped referral source report](docs/screenshots/referer-admin-report.png)
 
-The same report is available in the dark admin theme:
-
-![Referer admin report in dark mode](docs/screenshots/referer-admin-report-dark.png)
+- Site-scoped referral source report (admin, required evidence).
 
 ## Technical Shape
 
@@ -72,6 +66,7 @@ The same report is available in the dark admin theme:
 - `RefererHealthSignal`
 - `ResolveRefererWindowAction`
 - `ResolveReferralSourceAction`
+- `SeedRefererScreenshotFixtureAction`
 
 ### Data objects
 
@@ -83,6 +78,7 @@ The same report is available in the dark admin theme:
 ### Command signatures
 
 - `capell:referer:prune`
+- `capell:referer:screenshot-fixture`
 
 ### Scheduled commands
 
@@ -91,6 +87,7 @@ The same report is available in the dark admin theme:
 ### Console command classes
 
 - `PruneRefererCountsCommand`
+- `SeedRefererScreenshotFixtureCommand`
 
 ### Manifest contributions
 
@@ -137,7 +134,7 @@ The same report is available in the dark admin theme:
 - Settings: no package settings declared.
 - Queues or schedules: scheduled commands `capell:referer:prune (daily; package registered)`.
 - Cache tags: `referer`.
-- Commands: `capell:referer:prune`.
+- Commands: `capell:referer:prune`, `capell:referer:screenshot-fixture`.
 
 ## Common Pitfalls
 
@@ -160,7 +157,8 @@ The same report is available in the dark admin theme:
 ## Quick Start
 
 1. Install the package: `composer require capell-app/referer`.
-2. Open the package admin page or resource and verify Referers is available.
+2. See it working: run `php artisan capell:referer:screenshot-fixture`.
+3. Open the package admin surface at `/admin/referer` and confirm Referers is available.
 
 ## Next Steps
 
@@ -171,9 +169,9 @@ The same report is available in the dark admin theme:
 - Configuration files: [`config/capell-referer.php`](config/capell-referer.php).
 - [Troubleshooting](#troubleshooting)
 - [Screenshot contract](docs/screenshots.json)
+- [Marketplace assets](docs/assets/marketplace/)
 - [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
-- Focused tests: `vendor/bin/pest packages/referer/tests --configuration=phpunit.xml`.
 
 <!-- prettier-ignore-end -->

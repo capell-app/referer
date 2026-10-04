@@ -2,9 +2,8 @@
 
 The required `referer-admin-report` capture renders the real Filament report at
 `/admin/referer`. Its marketplace asset is
-`docs/screenshots/referer-admin-report.png`; declaration does not mean the image
-has been captured. Keep the package disabled until the manager captures and
-reviews this image and the package review checks pass.
+`docs/screenshots/referer-admin-report.png`, with a dark variant beside it.
+Recapture both with the steps below whenever the report layout changes.
 
 Use a disposable installed App with at least one site and an administrator with
 `View:RefererPage` and access to that site. Set `CAPELL_SCREENSHOT_FIXTURE=record-state`
