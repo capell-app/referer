@@ -38,6 +38,7 @@ Screenshot contract: `docs/screenshots.json`.
 ### Service providers
 
 - `Capell\Referer\Providers\RefererServiceProvider`
+- `Capell\Referer\Providers\ConsoleServiceProvider`
 - `Capell\Referer\Providers\AdminServiceProvider`
 
 ### Config files

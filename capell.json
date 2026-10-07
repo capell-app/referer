@@ -24,8 +24,8 @@
         "conflicts": []
     },
     "providers": {
-        "metadata": [],
-        "install": [],
+        "metadata": ["Capell\\Referer\\Providers\\RefererServiceProvider"],
+        "install": ["Capell\\Referer\\Providers\\ConsoleServiceProvider"],
         "runtime": ["Capell\\Referer\\Providers\\RefererServiceProvider"],
         "admin": ["Capell\\Referer\\Providers\\AdminServiceProvider"],
         "frontend": []

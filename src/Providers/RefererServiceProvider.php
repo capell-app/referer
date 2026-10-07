@@ -23,6 +23,9 @@ final class RefererServiceProvider extends AbstractPackageServiceProvider
 
     public static string $packageName = 'capell-app/referer';
 
+    private bool $installedPackageBooted = false;
+
+    #[Override]
     public function configurePackage(Package $package): void
     {
         $package
@@ -38,6 +41,8 @@ final class RefererServiceProvider extends AbstractPackageServiceProvider
     #[Override]
     public function registeringPackage(): void
     {
+        $this->app->register(ConsoleServiceProvider::class);
+
         parent::registeringPackage();
 
         $this->app->singleton(RefererHealthSignal::class);
@@ -53,11 +58,19 @@ final class RefererServiceProvider extends AbstractPackageServiceProvider
     #[Override]
     protected function bootInstalledPackage(): self
     {
-        return $this
+        if ($this->installedPackageBooted) {
+            return $this;
+        }
+
+        $this
             ->registerModels()
             ->registerProtectedTables()
             ->registerFrontendMiddleware()
             ->registerRetentionSchedule();
+
+        $this->installedPackageBooted = true;
+
+        return $this;
     }
 
     private function registerModels(): self
