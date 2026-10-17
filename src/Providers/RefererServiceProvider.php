@@ -23,8 +23,6 @@ final class RefererServiceProvider extends AbstractPackageServiceProvider
 
     public static string $packageName = 'capell-app/referer';
 
-    private bool $installedPackageBooted = false;
-
     #[Override]
     public function configurePackage(Package $package): void
     {
@@ -50,27 +48,14 @@ final class RefererServiceProvider extends AbstractPackageServiceProvider
     }
 
     #[Override]
-    protected function isPackageInstalled(): bool
+    protected function bootInstalledRuntime(): void
     {
-        return CapellCore::isPackageInstalled(self::$packageName);
-    }
-
-    #[Override]
-    protected function bootInstalledPackage(): self
-    {
-        if ($this->installedPackageBooted) {
-            return $this;
-        }
-
         $this
             ->registerModels()
             ->registerProtectedTables()
             ->registerFrontendMiddleware()
             ->registerRetentionSchedule();
 
-        $this->installedPackageBooted = true;
-
-        return $this;
     }
 
     private function registerModels(): self
@@ -78,7 +63,6 @@ final class RefererServiceProvider extends AbstractPackageServiceProvider
         $models = [RefererDailyCount::class, RefererSourceTotal::class];
 
         $this->surface()->models($models);
-        CapellCore::registerModels($models);
 
         return $this;
     }
@@ -103,18 +87,14 @@ final class RefererServiceProvider extends AbstractPackageServiceProvider
             [RecordRefererMiddleware::class],
         );
 
-        $this->app->afterResolving(FrontendRouteMiddlewareRegistry::class, $configure);
-
-        if ($this->app->resolved(FrontendRouteMiddlewareRegistry::class)) {
-            $configure($this->app->make(FrontendRouteMiddlewareRegistry::class));
-        }
+        $this->callAfterResolving(FrontendRouteMiddlewareRegistry::class, $configure);
 
         return $this;
     }
 
     private function registerRetentionSchedule(): self
     {
-        $this->callAfterResolving(Schedule::class, static function (Schedule $schedule): void {
+        $this->registerSchedule(static function (Schedule $schedule): void {
             $schedule->command('capell:referer:prune')
                 ->daily()
                 ->withoutOverlapping();

@@ -99,10 +99,15 @@ it('normalises recognised, unknown, and unsafe referral headers without persisti
 });
 
 it('rejects private hosts after IDNA normalisation', function (): void {
-    $resolve = resolve(ResolveReferralSourceAction::class);
-    $normalizeHost = new ReflectionClass($resolve)->getMethod('normalizeHost');
+    $site = new Site;
+    $site->setAttribute('id', 7);
 
-    expect($normalizeHost->invoke($resolve, 'machine.ｌｏｃａｌ'))->toBeNull();
+    $publicSource = ResolveReferralSourceAction::run(requestWithReferer('https://external.example.org/story'), $site);
+    throw_unless($publicSource instanceof ReferralSourceData, RuntimeException::class, 'Expected a public external referral to be recognised.');
+
+    expect($publicSource->key)->toBe('other_external')
+        ->and(ResolveReferralSourceAction::run(requestWithReferer('https://machine.local/private'), $site))->toBeNull()
+        ->and(ResolveReferralSourceAction::run(requestWithReferer('https://machine.ｌｏｃａｌ/private'), $site))->toBeNull();
 });
 
 it('increments daily and lifetime counters atomically', function (): void {

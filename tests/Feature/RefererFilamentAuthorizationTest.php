@@ -2,7 +2,12 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Actions\DemoPackageAction;
+use Capell\Core\Actions\Install\InstallPackagesAction;
+use Capell\Core\Data\InstallInputData;
+use Capell\Core\Data\PackageData;
 use Capell\Core\Models\Site;
+use Capell\Core\Support\Install\NullProgressReporter;
 use Capell\Referer\Actions\SeedRefererScreenshotFixtureAction;
 use Capell\Referer\Filament\Pages\RefererPage;
 use Capell\Referer\Filament\Widgets\TopRefererSourcesFilamentWidget;
@@ -11,6 +16,7 @@ use Carbon\CarbonImmutable;
 use Filament\Facades\Filament;
 use Filament\Panel;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -176,6 +182,39 @@ it('refuses screenshot writes without force or the disposable environment', func
     $this->artisan('capell:referer:screenshot-fixture')->assertFailed();
     $this->artisan('capell:referer:screenshot-fixture', ['--force' => true])->assertFailed();
     expect(DB::table('referer_daily_counts')->count())->toBe(0);
+});
+
+it('runs the manifest demo through installer arguments in the disposable screenshot app', function (): void {
+    $site = Site::factory()->create();
+    $originalFixture = getenv('CAPELL_SCREENSHOT_FIXTURE');
+    $originalPath = getenv('CAPELL_SCREENSHOT_APP_PATH');
+    putenv('CAPELL_SCREENSHOT_FIXTURE=record-state');
+    putenv('CAPELL_SCREENSHOT_APP_PATH=' . base_path());
+
+    try {
+        // Keep the real installer flag filtering and fixture writes; replace
+        // only the child process so it can use this test's in-memory database.
+        DemoPackageAction::shouldRun()->once()->andReturnUsing(function (PackageData $package, array $arguments): void {
+            expect(Artisan::call((string) $package->getDemoCommand(), $arguments))->toBe(0);
+        });
+        $input = new InstallInputData(
+            siteUrl: 'https://referer.test',
+            packages: ['capell-app/referer'],
+            languages: ['en'],
+            demoContent: true,
+            cachesToClear: [],
+            generateSitemap: false,
+            generateStaticSite: false,
+        );
+
+        resolve(InstallPackagesAction::class)->demoPackage($input, null, 'capell-app/referer', new NullProgressReporter);
+
+        expect(DB::table('referer_daily_counts')->where('site_id', $site->getKey())->count())->toBe(4)
+            ->and((int) DB::table('referer_source_totals')->where('site_id', $site->getKey())->sum('count'))->toBe(224);
+    } finally {
+        putenv($originalFixture === false ? 'CAPELL_SCREENSHOT_FIXTURE' : 'CAPELL_SCREENSHOT_FIXTURE=' . $originalFixture);
+        putenv($originalPath === false ? 'CAPELL_SCREENSHOT_APP_PATH' : 'CAPELL_SCREENSHOT_APP_PATH=' . $originalPath);
+    }
 });
 
 it('refuses screenshot writes in production even with fixture flags', function (): void {

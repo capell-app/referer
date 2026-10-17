@@ -106,6 +106,7 @@
         "install": null,
         "setup": null,
         "demo": "capell:referer:screenshot-fixture",
+        "demoParams": ["force"],
         "doctor": null,
         "prune": "capell:referer:prune",
         "maintenance": ["capell:referer:prune"]
