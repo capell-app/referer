@@ -158,8 +158,13 @@ Screenshot contract: `docs/screenshots.json`.
 ## Quick Start
 
 1. Install the package: `composer require capell-app/referer`.
-2. See it working: run `php artisan capell:referer:screenshot-fixture`.
-3. Open the package admin surface at `/admin/referer` and confirm Referers is available.
+2. For Site owners and analysts: Permission to view Referrers and an authorised site. Genuine successful referral-bearing HTML requests are needed for populated counters.
+3. Open `/admin/referer`. Select the site and reporting window and apply the filters. Visit a public HTML page through a genuine referring link, then refresh the report.
+4. Check the result: Measured referral sources appear for the selected window; empty results mean no eligible requests were measured. Next: Compare sources over another window and inspect the public tracking prerequisites if the expected request is absent.
+
+## Upgrading
+
+No manual steps between minor versions.
 
 ## Next Steps
 

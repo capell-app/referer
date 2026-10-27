@@ -55,6 +55,7 @@ final class RefererHealthCheck implements ChecksExtensionHealth
                 ? (string) __('capell-referer::package.health.storage_passed')
                 : (string) __('capell-referer::package.health.storage_failed'),
             remediation: $passed ? null : (string) __('capell-referer::package.health.storage_remediation'),
+            id: 'legacy.referrer.counter.storage',
         );
     }
 
@@ -70,6 +71,7 @@ final class RefererHealthCheck implements ChecksExtensionHealth
                 ? (string) __('capell-referer::package.health.middleware_passed')
                 : (string) __('capell-referer::package.health.middleware_failed'),
             remediation: $registered ? null : (string) __('capell-referer::package.health.middleware_remediation'),
+            id: 'legacy.frontend.referrer.middleware',
         );
     }
 
@@ -84,6 +86,7 @@ final class RefererHealthCheck implements ChecksExtensionHealth
                 ? (string) __('capell-referer::package.health.write_failed')
                 : (string) __('capell-referer::package.health.write_passed'),
             remediation: $failed ? (string) __('capell-referer::package.health.write_remediation') : null,
+            id: 'legacy.referrer.counter.writes',
         );
     }
 }

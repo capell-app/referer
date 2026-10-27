@@ -1,0 +1,8 @@
+{
+    "audience": "Site owners and analysts",
+    "prerequisites": "Permission to view Referrers and an authorised site. Genuine successful referral-bearing HTML requests are needed for populated counters.",
+    "destination": "/admin/referer",
+    "task": "Select the site and reporting window and apply the filters. Visit a public HTML page through a genuine referring link, then refresh the report.",
+    "expectedResult": "Measured referral sources appear for the selected window; empty results mean no eligible requests were measured.",
+    "nextStep": "Compare sources over another window and inspect the public tracking prerequisites if the expected request is absent."
+}
