@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\Referer\Actions;
 
+use Capell\Core\Data\Database\SqlFragment;
 use Capell\Core\Enums\Database\DatabaseFamily;
 use Capell\Core\Facades\CapellDatabase;
 use Capell\Core\Models\Site;
+use Capell\Core\Support\TableName;
 use Capell\Referer\Data\ReferralSourceData;
 use Closure;
 use Illuminate\Contracts\Database\Query\Expression;
@@ -40,7 +42,7 @@ final class RecordRefererCountAction
                 try {
                     $restoreTimeout = $this->applyDatabaseTimeout();
 
-                    DB::table('referer_daily_counts')->upsert(
+                    DB::table(TableName::resolve('referer_daily_counts'))->upsert(
                         [[
                             'site_id' => $site->getKey(),
                             'date' => $date,
@@ -48,10 +50,10 @@ final class RecordRefererCountAction
                             'count' => 1,
                         ]],
                         ['site_id', 'date', 'source_key'],
-                        ['count' => $this->incrementExpression('referer_daily_counts')],
+                        ['count' => $this->incrementExpression(TableName::resolve('referer_daily_counts'))],
                     );
 
-                    DB::table('referer_source_totals')->upsert(
+                    DB::table(TableName::resolve('referer_source_totals'))->upsert(
                         [[
                             'site_id' => $site->getKey(),
                             'source_key' => $source->key,
@@ -59,7 +61,7 @@ final class RecordRefererCountAction
                             'collection_started_on' => $date,
                         ]],
                         ['site_id', 'source_key'],
-                        ['count' => $this->incrementExpression('referer_source_totals')],
+                        ['count' => $this->incrementExpression(TableName::resolve('referer_source_totals'))],
                     );
                 } finally {
                     $restoreTimeout();
@@ -119,14 +121,14 @@ final class RecordRefererCountAction
         $connection = DB::connection();
         $expression = match (CapellDatabase::for($connection)->family()) {
             DatabaseFamily::PostgreSql => match ($table) {
-                'referer_daily_counts' => '"referer_daily_counts"."count" + 1',
-                'referer_source_totals' => '"referer_source_totals"."count" + 1',
+                TableName::resolve('referer_daily_counts') => '"' . TableName::resolve('referer_daily_counts') . '"."count" + 1',
+                TableName::resolve('referer_source_totals') => '"' . TableName::resolve('referer_source_totals') . '"."count" + 1',
                 default => throw new RuntimeException('The referral counter table is not supported.'),
             },
             DatabaseFamily::MySql, DatabaseFamily::MariaDb, DatabaseFamily::Sqlite => 'count + 1',
         };
 
-        return DB::raw($expression);
+        return SqlFragment::raw($expression)->expression();
     }
 
     private function applyDatabaseTimeout(): Closure

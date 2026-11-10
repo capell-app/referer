@@ -100,10 +100,10 @@
                             <tr class="border-b last:border-0">
                                 <td class="px-3 py-2">{{ $row->label }}</td>
                                 <td class="px-3 py-2">
-                                    {{ number_format($row->count) }}
+                                    {{ \Illuminate\Support\Number::format($row->count, precision: 0, locale: app()->getLocale()) }}
                                 </td>
                                 <td class="px-3 py-2">
-                                    {{ number_format($row->share, 1) }}%
+                                    {{ \Illuminate\Support\Number::format($row->share, precision: 1, locale: app()->getLocale()) }}%
                                 </td>
                             </tr>
                         @endforeach
@@ -111,7 +111,7 @@
                 </table>
             </div>
             <p class="mt-4 text-xs text-gray-500">
-                {{ __('capell-referer::report.measured', ['count' => number_format($report->measuredRequests)]) }} {{ __('capell-referer::report.utc') }}
+                {{ __('capell-referer::report.measured', ['count' => \Illuminate\Support\Number::format($report->measuredRequests, precision: 0, locale: app()->getLocale())]) }} {{ __('capell-referer::report.utc') }}
             </p>
             <p class="mt-2 text-xs text-gray-500">{{ __('capell-referer::report.coverage') }}</p>
             @if ($report->collectionStartedOn instanceof \Carbon\CarbonImmutable)

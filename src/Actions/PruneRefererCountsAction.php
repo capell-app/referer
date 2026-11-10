@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Referer\Actions;
 
+use Capell\Core\Support\TableName;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsFake;
@@ -21,14 +22,14 @@ final class PruneRefererCountsAction
         $cutoff = CarbonImmutable::today('UTC')->subDays(max(1, $days) - 1)->toDateString();
 
         if ($dryRun) {
-            return (int) DB::table('referer_daily_counts')->where('date', '<', $cutoff)->count();
+            return (int) DB::table(TableName::resolve('referer_daily_counts'))->where('date', '<', $cutoff)->count();
         }
 
         return DB::transaction(function () use ($batchSize, $cutoff): int {
             $deleted = 0;
 
             do {
-                $ids = DB::table('referer_daily_counts')
+                $ids = DB::table(TableName::resolve('referer_daily_counts'))
                     ->where('date', '<', $cutoff)
                     ->orderBy('id')
                     ->limit($batchSize)
@@ -38,7 +39,7 @@ final class PruneRefererCountsAction
                     break;
                 }
 
-                $deleted += DB::table('referer_daily_counts')->whereIn('id', $ids->all())->delete();
+                $deleted += DB::table(TableName::resolve('referer_daily_counts'))->whereIn('id', $ids->all())->delete();
             } while (true);
 
             $this->recordRetentionBoundary($cutoff);
@@ -49,10 +50,10 @@ final class PruneRefererCountsAction
 
     private function recordRetentionBoundary(string $cutoff): void
     {
-        $current = DB::table('referer_retention_state')->where('id', 1)->value('daily_available_from');
+        $current = DB::table(TableName::resolve('referer_retention_state'))->where('id', 1)->value('daily_available_from');
 
         if (! is_string($current)) {
-            DB::table('referer_retention_state')->insert([
+            DB::table(TableName::resolve('referer_retention_state'))->insert([
                 'id' => 1,
                 'daily_available_from' => $cutoff,
             ]);
@@ -61,7 +62,7 @@ final class PruneRefererCountsAction
         }
 
         if ($current < $cutoff) {
-            DB::table('referer_retention_state')->where('id', 1)->update([
+            DB::table(TableName::resolve('referer_retention_state'))->where('id', 1)->update([
                 'daily_available_from' => $cutoff,
             ]);
         }

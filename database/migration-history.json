@@ -1,0 +1,11 @@
+{
+    "create_referer_counts_tables": {
+        "names": [
+            "2026_09_14_000001_create_referer_counts_tables"
+        ],
+        "sha256": [
+            "5d296d00a391ef776c1eca370427393d5930ff68678686633667e29eb3ce13ec",
+            "e310902b24a78ec34fc6b48126b9fbf68fbb393609a682a65071998e49dca419"
+        ]
+    }
+}

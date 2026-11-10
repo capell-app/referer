@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Referer\Actions;
 
 use Capell\Core\Models\Site;
+use Capell\Core\Support\TableName;
 use Capell\ScreenshotFixtures\FixtureState;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -27,13 +28,13 @@ final class SeedRefererScreenshotFixtureAction
                 && in_array(getenv('CAPELL_SCREENSHOT_FIXTURE'), ['1', 'true', 'record-state'], true)
                 && is_string($appPath)
                 && $appPath === realpath(base_path())
-                && (realpath(base_path()) === realpath(dirname(__DIR__, 4) . '/vendor/orchestra/testbench-core/laravel')
-                    || str_starts_with((string) realpath(base_path()), dirname(__DIR__, 4) . '/tmp/testbench-skeletons/')),
+                && (realpath(base_path()) === realpath((str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/vendor/orchestra/testbench-core/laravel')
+                    || str_starts_with((string) realpath(base_path()), (str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/tmp/testbench-skeletons/')),
             RuntimeException::class,
             'Referer screenshot fixtures require the explicit disposable local screenshot environment.',
         );
 
-        require_once dirname(__DIR__, 4) . '/scripts/screenshots/FixtureState.php';
+        require_once (str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/scripts/screenshots/FixtureState.php';
         FixtureState::boot();
 
         $sites = Site::query()->get();
@@ -45,11 +46,11 @@ final class SeedRefererScreenshotFixtureAction
         DB::transaction(static function () use ($sites, $date): void {
             foreach ($sites as $site) {
                 foreach (['google' => 128, 'bing' => 48, 'linkedin' => 32, 'other_external' => 16] as $source => $count) {
-                    DB::table('referer_daily_counts')->updateOrInsert(
+                    DB::table(TableName::resolve('referer_daily_counts'))->updateOrInsert(
                         ['site_id' => $site->getKey(), 'date' => $date, 'source_key' => $source],
                         ['count' => $count],
                     );
-                    DB::table('referer_source_totals')->updateOrInsert(
+                    DB::table(TableName::resolve('referer_source_totals'))->updateOrInsert(
                         ['site_id' => $site->getKey(), 'source_key' => $source],
                         ['count' => $count, 'collection_started_on' => $date],
                     );

@@ -6,6 +6,7 @@ namespace Capell\Referer\Providers;
 
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Core\Support\TableName;
 use Capell\Frontend\Support\Routing\FrontendRouteMiddlewareRegistry;
 use Capell\Referer\Actions\RefererHealthSignal;
 use Capell\Referer\Console\Commands\PruneRefererCountsCommand;
@@ -69,9 +70,9 @@ final class RefererServiceProvider extends AbstractPackageServiceProvider
 
     private function registerProtectedTables(): self
     {
-        CapellCore::registerProtectedTable('referer_daily_counts');
-        CapellCore::registerProtectedTable('referer_source_totals');
-        CapellCore::registerProtectedTable('referer_retention_state');
+        CapellCore::registerProtectedTable(TableName::resolve('referer_daily_counts'));
+        CapellCore::registerProtectedTable(TableName::resolve('referer_source_totals'));
+        CapellCore::registerProtectedTable(TableName::resolve('referer_retention_state'));
 
         return $this;
     }

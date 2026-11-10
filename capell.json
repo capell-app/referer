@@ -24,7 +24,10 @@
         "conflicts": []
     },
     "providers": {
-        "metadata": ["Capell\\Referer\\Providers\\RefererServiceProvider"],
+        "metadata": [
+            "Capell\\Referer\\Providers\\RefererServiceProvider",
+            "Capell\\Referer\\Providers\\MigrationMetadataServiceProvider"
+        ],
         "install": ["Capell\\Referer\\Providers\\ConsoleServiceProvider"],
         "runtime": ["Capell\\Referer\\Providers\\RefererServiceProvider"],
         "admin": ["Capell\\Referer\\Providers\\AdminServiceProvider"],
@@ -182,6 +185,22 @@
     "marketplace": {
         "summary": "Privacy-preserving aggregate referral reporting for Capell sites.",
         "description": "Referers reports recognised sources and other external referrals using daily and lifetime counters. It deliberately stores no raw URLs, paths, query strings, IP addresses, cookies, sessions, user IDs, user agents, or event rows.",
+        "problem": "Our site team cannot see which external sources bring successful page requests.",
+        "outcome": "The site has aggregate counts for configured referral sources.",
+        "faq": [
+            {
+                "question": "Which referral data is retained?",
+                "answer": "Daily and lifetime counters are kept for finite source keys without raw URLs or request identifiers."
+            },
+            {
+                "question": "Where can administrators see sources?",
+                "answer": "The cached Referrers report and dashboard widget show site-scoped referral counts."
+            },
+            {
+                "question": "Does this record browsing histories?",
+                "answer": "The package provides aggregate counts rather than a browsing-event log."
+            }
+        ],
         "screenshots": [
             {
                 "path": "docs/screenshots/referer-admin-report.png",

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\Referer\Actions;
 
+use Capell\Core\Support\TableName;
 use Capell\Referer\Data\RefererWindowData;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
@@ -127,7 +128,7 @@ final class ResolveRefererWindowAction
     private function recordedRetentionBoundary(): ?CarbonImmutable
     {
         try {
-            $value = DB::table('referer_retention_state')->where('id', 1)->value('daily_available_from');
+            $value = DB::table(TableName::resolve('referer_retention_state'))->where('id', 1)->value('daily_available_from');
 
             return is_string($value) && $value !== '' ? CarbonImmutable::parse($value, 'UTC') : null;
         } catch (Throwable) {

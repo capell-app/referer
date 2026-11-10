@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\Referer\Actions;
 
 use Capell\Core\Models\Site;
+use Capell\Core\Support\TableName;
 use Capell\Referer\Data\RefererReportData;
 use Capell\Referer\Data\RefererReportRowData;
 use Capell\Referer\Data\RefererWindowData;
@@ -66,8 +67,8 @@ final class BuildRefererReportAction
     private function build(int|string $siteId, RefererWindowData $window): RefererReportData
     {
         $query = $window->allTime
-            ? DB::table('referer_source_totals')->where('site_id', $siteId)
-            : DB::table('referer_daily_counts')
+            ? DB::table(TableName::resolve('referer_source_totals'))->where('site_id', $siteId)
+            : DB::table(TableName::resolve('referer_daily_counts'))
                 ->where('site_id', $siteId)
                 ->whereBetween('date', [$window->startsOn?->toDateString(), $window->endsOn?->toDateString()]);
 
@@ -88,8 +89,8 @@ final class BuildRefererReportAction
             $total += (int) $row['count'];
         }
 
-        $collectionStartedOn = DB::table('referer_source_totals')->where('site_id', $siteId)->min('collection_started_on');
-        $dates = DB::table('referer_daily_counts')->where('site_id', $siteId);
+        $collectionStartedOn = DB::table(TableName::resolve('referer_source_totals'))->where('site_id', $siteId)->min('collection_started_on');
+        $dates = DB::table(TableName::resolve('referer_daily_counts'))->where('site_id', $siteId);
 
         $availableThroughOn = $dates->max('date');
 

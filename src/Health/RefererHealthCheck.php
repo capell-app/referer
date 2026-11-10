@@ -6,6 +6,7 @@ namespace Capell\Referer\Health;
 
 use Capell\Core\Contracts\Extensions\ChecksExtensionHealth;
 use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
+use Capell\Core\Support\TableName;
 use Capell\Frontend\Support\Routing\FrontendRouteMiddlewareRegistry;
 use Capell\Referer\Actions\RefererHealthSignal;
 use Capell\Referer\Http\Middleware\RecordRefererMiddleware;
@@ -41,9 +42,9 @@ final class RefererHealthCheck implements ChecksExtensionHealth
     private function storageCheck(): DoctorCheckResultData
     {
         try {
-            $passed = Schema::hasTable('referer_daily_counts')
-                && Schema::hasTable('referer_source_totals')
-                && Schema::hasTable('referer_retention_state');
+            $passed = Schema::hasTable(TableName::resolve('referer_daily_counts'))
+                && Schema::hasTable(TableName::resolve('referer_source_totals'))
+                && Schema::hasTable(TableName::resolve('referer_retention_state'));
         } catch (Throwable) {
             $passed = false;
         }
