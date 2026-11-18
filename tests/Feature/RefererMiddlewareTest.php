@@ -74,3 +74,93 @@ it('does not collect assets, redirects, or non-HTML responses', function (): voi
 
     expect(DB::table('referer_daily_counts')->count())->toBe(0);
 });
+
+it('does not count crawlers, prefetches or prerenders', function (array $server): void {
+    $context = Mockery::mock(FrontendContextReader::class);
+    $context->shouldReceive('site')->never();
+    $middleware = new RecordRefererMiddleware($context);
+
+    $request = Request::create('/', 'GET', [], [], [], [
+        'HTTP_HOST' => 'www.example.com',
+        'HTTP_REFERER' => 'https://www.google.com/search?q=capell',
+        'HTTP_USER_AGENT' => 'Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/130.0 Safari/537.36',
+        ...$server,
+    ]);
+
+    $middleware->handle($request, static fn (): Response => new Response('<html></html>', Response::HTTP_OK, ['Content-Type' => 'text/html']));
+
+    expect(DB::table('referer_daily_counts')->count())->toBe(0);
+})->with([
+    'search crawler' => [['HTTP_USER_AGENT' => 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)']],
+    'link preview' => [['HTTP_USER_AGENT' => 'facebookexternalhit/1.1']],
+    'empty user agent' => [['HTTP_USER_AGENT' => '']],
+    'sec-purpose prefetch' => [['HTTP_SEC_PURPOSE' => 'prefetch']],
+    'sec-purpose prerender' => [['HTTP_SEC_PURPOSE' => 'prefetch;prerender']],
+    'legacy purpose header' => [['HTTP_PURPOSE' => 'prefetch']],
+]);
+
+it('skips requests that are not public page views', function (string $method, string $uri, array $server, bool $enabled): void {
+    config()->set('capell-referer.enabled', $enabled);
+    $context = Mockery::mock(FrontendContextReader::class);
+    $context->shouldReceive('site')->never();
+    $middleware = new RecordRefererMiddleware($context);
+
+    $request = Request::create($uri, $method, [], [], [], [
+        'HTTP_HOST' => 'www.example.com',
+        'HTTP_REFERER' => 'https://www.google.com/search?q=capell',
+        'HTTP_USER_AGENT' => 'Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/130.0 Safari/537.36',
+        ...$server,
+    ]);
+
+    $middleware->handle($request, static fn (): Response => new Response('<html></html>', Response::HTTP_OK, ['Content-Type' => 'text/html']));
+
+    expect(DB::table('referer_daily_counts')->count())->toBe(0);
+})->with([
+    'collection disabled' => ['GET', '/', [], false],
+    'form submission' => ['POST', '/', [], true],
+    'livewire update' => ['GET', '/', ['HTTP_X_LIVEWIRE' => 'true'], true],
+    'inertia visit' => ['GET', '/', ['HTTP_X_INERTIA' => 'true'], true],
+    'admin area' => ['GET', '/admin/pages', [], true],
+    'preview query' => ['GET', '/?preview=1', [], true],
+    'api path' => ['GET', '/api/pages', [], true],
+]);
+
+it('does not count error pages or requests without a resolved site', function (bool $hasSite, bool $isError): void {
+    $site = new Site;
+    $site->setAttribute('id', 12);
+    $context = Mockery::mock(FrontendContextReader::class);
+    $context->shouldReceive('site')->andReturn($hasSite ? $site : null);
+    $context->shouldReceive('isError')->andReturn($isError);
+    $middleware = new RecordRefererMiddleware($context);
+
+    $request = Request::create('/', 'GET', [], [], [], [
+        'HTTP_HOST' => 'www.example.com',
+        'HTTP_REFERER' => 'https://www.google.com/search?q=capell',
+        'HTTP_USER_AGENT' => 'Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/130.0 Safari/537.36',
+    ]);
+
+    $response = $middleware->handle($request, static fn (): Response => new Response('<html>page</html>', Response::HTTP_OK, ['Content-Type' => 'text/html']));
+
+    expect($response->getContent())->toBe('<html>page</html>')
+        ->and(DB::table('referer_daily_counts')->count())->toBe(0);
+})->with([
+    'no site' => [false, false],
+    'error page' => [true, true],
+]);
+
+it('never lets a measurement failure change page delivery', function (): void {
+    $context = Mockery::mock(FrontendContextReader::class);
+    $context->shouldReceive('site')->andThrow(new RuntimeException('context unavailable'));
+    $middleware = new RecordRefererMiddleware($context);
+
+    $request = Request::create('/', 'GET', [], [], [], [
+        'HTTP_HOST' => 'www.example.com',
+        'HTTP_REFERER' => 'https://www.google.com/search?q=capell',
+        'HTTP_USER_AGENT' => 'Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/130.0 Safari/537.36',
+    ]);
+
+    $response = $middleware->handle($request, static fn (): Response => new Response('<html>page</html>', Response::HTTP_OK, ['Content-Type' => 'text/html']));
+
+    expect($response->getStatusCode())->toBe(Response::HTTP_OK)
+        ->and($response->getContent())->toBe('<html>page</html>');
+});

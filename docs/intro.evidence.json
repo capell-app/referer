@@ -1,0 +1,81 @@
+[
+    {
+        "claim": "Arrivals from search and social sites are counted by name, with a report in the admin and a card on your dashboard.",
+        "evidence": [
+            "src/Http/Middleware/RecordRefererMiddleware.php",
+            "src/Filament/Pages/RefererPage.php",
+            "src/Filament/Widgets/TopRefererSourcesFilamentWidget.php"
+        ]
+    },
+    {
+        "claim": "Google, Facebook and six other well-known sites are named (eight in all), and every other website that sends people to yours is grouped as Other external.",
+        "evidence": [
+            "config/capell-referer.php",
+            "src/Actions/ResolveReferralSourceAction.php",
+            "resources/lang/en/sources.php"
+        ]
+    },
+    {
+        "claim": "A developer must add any other website you want named.",
+        "evidence": [
+            "config/capell-referer.php",
+            "resources/lang/en/sources.php"
+        ]
+    },
+    {
+        "claim": "Referers stores only counts, one for each site, each day and each label, plus a running total for each site and label.",
+        "evidence": [
+            "database/migrations/2026_09_14_000001_create_referer_counts_tables.php",
+            "src/Actions/RecordRefererCountAction.php",
+            "src/Models/RefererDailyCount.php",
+            "src/Models/RefererSourceTotal.php"
+        ]
+    },
+    {
+        "claim": "No IP address, cookie, page address or record of an individual visit is kept.",
+        "evidence": [
+            "database/migrations/2026_09_14_000001_create_referer_counts_tables.php",
+            "src/Actions/RecordRefererCountAction.php"
+        ]
+    },
+    {
+        "claim": "Visits from your own site or with no referring site are ignored, and percentages are shares of the arrivals counted.",
+        "evidence": [
+            "src/Actions/ResolveReferralSourceAction.php",
+            "src/Actions/BuildRefererReportAction.php"
+        ]
+    },
+    {
+        "claim": "Each count is a page Capell builds for an arrival, so a reload can count again and one person can be counted more than once. Crawlers, link-preview fetchers, requests with no browser identity and browser prefetch or prerender requests are not counted.",
+        "evidence": ["src/Http/Middleware/RecordRefererMiddleware.php"]
+    },
+    {
+        "claim": "Pages served from a saved copy, such as one held by HTML Cache or a CDN, are not counted.",
+        "evidence": [
+            "src/Providers/RefererServiceProvider.php",
+            "src/Http/Middleware/RecordRefererMiddleware.php"
+        ]
+    },
+    {
+        "claim": "Daily counts are deleted after 400 days and all-time totals are kept.",
+        "evidence": [
+            "config/capell-referer.php",
+            "src/Actions/PruneRefererCountsAction.php",
+            "src/Actions/BuildRefererReportAction.php"
+        ]
+    },
+    {
+        "claim": "That clean-up needs background jobs, which your host or developer must have running (a scheduled prune command).",
+        "evidence": [
+            "src/Providers/RefererServiceProvider.php",
+            "src/Console/Commands/PruneRefererCountsCommand.php"
+        ]
+    },
+    {
+        "claim": "The admin report offers preset periods from today to all time, or a custom range, for each site you can see.",
+        "evidence": [
+            "src/Actions/ResolveRefererWindowAction.php",
+            "src/Filament/Pages/RefererPage.php"
+        ]
+    }
+]

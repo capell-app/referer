@@ -1,6 +1,6 @@
 {
     "name": "capell-app/referer",
-    "description": "Privacy-preserving aggregate referral reporting for Capell sites.",
+    "description": "Counts arrivals from search and social websites per site and day, with no visitor records, for Capell.",
     "keywords": [
         "capell",
         "referer",
@@ -20,7 +20,7 @@
     "require": {
         "php": "^8.4",
         "capell-app/admin": "^1.0.66",
-        "capell-app/core": "^1.0.75",
+        "capell-app/core": "^1.0.78",
         "capell-app/frontend": "^1.0.71",
         "lorisleiva/laravel-actions": "^2.8",
         "spatie/laravel-data": "^4.5",

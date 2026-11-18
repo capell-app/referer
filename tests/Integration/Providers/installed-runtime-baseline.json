@@ -44,6 +44,7 @@
                     }
                 },
                 "commands": {
+                    "capell:referer:demo": "Capell\\Referer\\Console\\Commands\\SeedRefererDemoCommand",
                     "capell:referer:prune": "Capell\\Referer\\Console\\Commands\\PruneRefererCountsCommand",
                     "capell:referer:screenshot-fixture": "Capell\\Referer\\Console\\Commands\\SeedRefererScreenshotFixtureCommand"
                 },
@@ -340,6 +341,7 @@
                     }
                 },
                 "commands": {
+                    "capell:referer:demo": "Capell\\Referer\\Console\\Commands\\SeedRefererDemoCommand",
                     "capell:referer:prune": "Capell\\Referer\\Console\\Commands\\PruneRefererCountsCommand",
                     "capell:referer:screenshot-fixture": "Capell\\Referer\\Console\\Commands\\SeedRefererScreenshotFixtureCommand"
                 },

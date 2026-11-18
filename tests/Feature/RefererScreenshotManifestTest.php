@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Referer\Console\Commands\SeedRefererDemoCommand;
 use Capell\Referer\Console\Commands\SeedRefererScreenshotFixtureCommand;
 use Capell\Tests\Support\CapellManifest;
 use Capell\Tests\Support\ScreenshotManifest;
@@ -11,7 +12,10 @@ it('declares the fixture command and a required marketplace report capture', fun
     $screenshotsPath = __DIR__ . '/../../docs/screenshots.json';
     $entry = ScreenshotManifest::entry($screenshotsPath, 'referer-admin-report');
 
-    expect(CapellManifest::command($manifestPath, 'demo'))->toBe('capell:referer:screenshot-fixture')
+    // Demo installs seed through their own command; the guarded screenshot fixture is only for captures.
+    expect(CapellManifest::command($manifestPath, 'demo'))->toBe('capell:referer:demo')
+        ->and(CapellManifest::consoleCommandNames($manifestPath))->toContain('capell:referer:demo')
+        ->and(CapellManifest::consoleCommandClasses($manifestPath))->toContain(SeedRefererDemoCommand::class)
         ->and(CapellManifest::consoleCommandNames($manifestPath))->toContain('capell:referer:screenshot-fixture')
         ->and(CapellManifest::consoleCommandClasses($manifestPath))->toContain(SeedRefererScreenshotFixtureCommand::class)
         ->and(ScreenshotManifest::fixtureCommands($screenshotsPath))->toContain('capell:referer:screenshot-fixture')

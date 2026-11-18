@@ -6,6 +6,7 @@ namespace Capell\Referer\Http\Middleware;
 
 use Capell\Core\Models\Site;
 use Capell\Frontend\Contracts\FrontendContextReader;
+use Capell\Frontend\Support\Http\CrawlerDetector;
 use Capell\Referer\Actions\RecordRefererCountAction;
 use Capell\Referer\Actions\ResolveReferralSourceAction;
 use Capell\Referer\Data\ReferralSourceData;
@@ -18,6 +19,7 @@ final class RecordRefererMiddleware
 {
     public function __construct(
         private readonly FrontendContextReader $frontendContext,
+        private readonly CrawlerDetector $crawlers = new CrawlerDetector,
     ) {}
 
     public function handle(Request $request, Closure $next): Response
@@ -63,6 +65,10 @@ final class RecordRefererMiddleware
             return false;
         }
 
+        if ($this->isSpeculative($request) || $this->crawlers->isCrawler($request->userAgent())) {
+            return false;
+        }
+
         $path = trim($request->path(), '/');
 
         if ($request->query('preview') !== null
@@ -72,5 +78,21 @@ final class RecordRefererMiddleware
         }
 
         return ! preg_match('#\.(?:css|js|map|json|xml|txt|ico|png|jpe?g|gif|svg|webp|avif|woff2?|ttf|otf|pdf|zip)$#i', $path);
+    }
+
+    /**
+     * Prefetch and prerender fetches may never be shown to a person, so they are not arrivals.
+     */
+    private function isSpeculative(Request $request): bool
+    {
+        foreach (['Sec-Purpose', 'Purpose', 'X-Purpose', 'X-Moz'] as $header) {
+            $value = strtolower((string) $request->headers->get($header));
+
+            if (str_contains($value, 'prefetch') || str_contains($value, 'prerender') || str_contains($value, 'preview')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -6,7 +6,7 @@ Developer reference for `capell-app/referer`. Start with the [README](../README.
 
 ## Package Details
 
-Referers is an **Available**, **Schema-owning** Capell package in the **Capell Marketing & Growth** product group. It ships as `capell-app/referer` and extends these surfaces: admin, frontend, console.
+Referers is an **Available** Capell package in the **Capell Marketing & Growth** product group. It ships as `capell-app/referer` and extends these surfaces: admin, frontend, console.
 
 - Status: Available
 - Tier: free
@@ -50,6 +50,7 @@ Referers is an **Available**, **Schema-owning** Capell package in the **Capell M
 - `RefererHealthSignal`
 - `ResolveRefererWindowAction`
 - `ResolveReferralSourceAction`
+- `SeedRefererDemoCountsAction`
 - `SeedRefererScreenshotFixtureAction`
 
 ### Data objects
@@ -61,6 +62,7 @@ Referers is an **Available**, **Schema-owning** Capell package in the **Capell M
 
 ### Command signatures
 
+- `capell:referer:demo`
 - `capell:referer:prune`
 - `capell:referer:screenshot-fixture`
 
@@ -71,6 +73,7 @@ Referers is an **Available**, **Schema-owning** Capell package in the **Capell M
 ### Console command classes
 
 - `PruneRefererCountsCommand`
+- `SeedRefererDemoCommand`
 - `SeedRefererScreenshotFixtureCommand`
 
 ### Manifest contributions

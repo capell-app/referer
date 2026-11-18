@@ -10,6 +10,7 @@ use Capell\Core\Support\TableName;
 use Capell\Frontend\Support\Routing\FrontendRouteMiddlewareRegistry;
 use Capell\Referer\Actions\RefererHealthSignal;
 use Capell\Referer\Console\Commands\PruneRefererCountsCommand;
+use Capell\Referer\Console\Commands\SeedRefererDemoCommand;
 use Capell\Referer\Console\Commands\SeedRefererScreenshotFixtureCommand;
 use Capell\Referer\Http\Middleware\RecordRefererMiddleware;
 use Capell\Referer\Models\RefererDailyCount;
@@ -33,6 +34,7 @@ final class RefererServiceProvider extends AbstractPackageServiceProvider
             ->hasTranslations()
             ->hasViews(self::$name)
             ->hasCommand(PruneRefererCountsCommand::class)
+            ->hasCommand(SeedRefererDemoCommand::class)
             ->hasCommand(SeedRefererScreenshotFixtureCommand::class)
             ->hasMigrations(['2026_09_14_000001_create_referer_counts_tables']);
     }

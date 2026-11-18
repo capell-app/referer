@@ -6,7 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^1.0",
     "version": "1.0.0",
-    "description": "Privacy-preserving aggregate referral reporting for successful Capell HTML page requests, without storing raw URLs, identifiers, or event records.",
+    "description": "Counts arrivals from search and social websites by name, with no visitor records, and reports them in the admin and on a dashboard card.",
     "product": {
         "group": "Capell Marketing & Growth",
         "tier": "free",
@@ -75,10 +75,12 @@
             "type": "console-command",
             "class": "Capell\\Referer\\Manifest\\RefererConsoleCommandsContribution",
             "commands": [
+                "capell:referer:demo",
                 "capell:referer:prune",
                 "capell:referer:screenshot-fixture"
             ],
             "commandClasses": [
+                "Capell\\Referer\\Console\\Commands\\SeedRefererDemoCommand",
                 "Capell\\Referer\\Console\\Commands\\PruneRefererCountsCommand",
                 "Capell\\Referer\\Console\\Commands\\SeedRefererScreenshotFixtureCommand"
             ]
@@ -108,20 +110,14 @@
     "commands": {
         "install": null,
         "setup": null,
-        "demo": "capell:referer:screenshot-fixture",
-        "demoParams": ["force"],
+        "demo": "capell:referer:demo",
         "doctor": null,
         "prune": "capell:referer:prune",
         "maintenance": ["capell:referer:prune"]
     },
     "settings": [],
     "permissions": ["View:RefererPage"],
-    "capabilities": [
-        "referer",
-        "aggregate-referral-reporting",
-        "privacy-bounded-collection",
-        "utc-daily-retention"
-    ],
+    "capabilities": [],
     "security": {
         "riskTier": "standard",
         "publicSurface": {
@@ -183,29 +179,33 @@
         "privateDocsRequested": false
     },
     "marketplace": {
-        "summary": "Privacy-preserving aggregate referral reporting for Capell sites.",
-        "description": "Referers reports recognised sources and other external referrals using daily and lifetime counters. It deliberately stores no raw URLs, paths, query strings, IP addresses, cookies, sessions, user IDs, user agents, or event rows.",
-        "problem": "Our site team cannot see which external sources bring successful page requests.",
-        "outcome": "The site has aggregate counts for configured referral sources.",
+        "summary": "Daily counts of which search and social websites send people to your own site, kept as totals only, with an admin report and dashboard card.",
+        "description": "See where arrivals come from. Referers recognises eight search and social sites, groups every other outside site as Other external, and stores a count for each of your sites per day and label, plus running totals, with nothing about individual visitors. The Monitoring report offers preset and custom periods, and a dashboard card shows the leading sources. Access follows each person's site scope and permissions.",
+        "problem": "I can't tell which other websites bring people to our pages.",
+        "outcome": "An admin report and dashboard card show which websites sent people.",
         "faq": [
             {
-                "question": "Which referral data is retained?",
-                "answer": "Daily and lifetime counters are kept for finite source keys without raw URLs or request identifiers."
+                "question": "Does it keep a record of individual visitors?",
+                "answer": "No. It stores only counts for each site, day and label, plus a running total for each site and label. No IP address, cookie, page address or individual visit is kept."
             },
             {
-                "question": "Where can administrators see sources?",
-                "answer": "The cached Referrers report and dashboard widget show site-scoped referral counts."
+                "question": "Which websites does the report name?",
+                "answer": "Google, Facebook and six other well-known sites. Every other website that sends people to yours is grouped as Other external, and a developer must add any other site you want named."
             },
             {
-                "question": "Does this record browsing histories?",
-                "answer": "The package provides aggregate counts rather than a browsing-event log."
+                "question": "Why might the numbers differ from my real visitors?",
+                "answer": "A reload can count again, so one person can be counted more than once. Crawlers, link-preview fetchers and prefetch requests are skipped, and so are pages served from a saved copy such as one held by HTML Cache or a CDN."
+            },
+            {
+                "question": "How long are the counts kept?",
+                "answer": "Daily counts are deleted after 400 days and all-time totals are kept. The clean-up needs background jobs, which your host or developer must have running."
             }
         ],
         "screenshots": [
             {
                 "path": "docs/screenshots/referer-admin-report.png",
-                "alt": "Referrers report showing populated referral aggregates in Capell Admin",
-                "caption": "Review referral sources, successful page requests and their share for the selected site and reporting period."
+                "alt": "Referrers report for a demo site over 30 days listing Google, Bing, LinkedIn and Other external with counts and shares.",
+                "caption": "See which sites sent people to yours, how many arrivals each sent and its share of the total."
             }
         ],
         "categories": ["admin", "growth"]

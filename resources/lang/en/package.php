@@ -6,6 +6,10 @@ return [
     'navigation' => 'Referrers',
     'title' => 'Referrers',
     'subtitle' => 'Privacy-preserving aggregate counts of successful HTML page requests by referral source.',
+    'demo' => [
+        'seeded' => 'Sample referral counts added for :count sites.',
+        'production_refused' => 'Sample referral counts replace real visit counts, so they cannot be added in production. Run this on a local or staging copy instead.',
+    ],
     'health' => [
         'storage_label' => 'Referrer: counter database table present',
         'storage_passed' => 'Daily, lifetime, and retention-state referrer tables are available.',

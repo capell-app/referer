@@ -6,6 +6,7 @@ use Capell\Core\Actions\DemoPackageAction;
 use Capell\Core\Actions\Install\InstallPackagesAction;
 use Capell\Core\Data\InstallInputData;
 use Capell\Core\Data\PackageData;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Install\NullProgressReporter;
 use Capell\Referer\Actions\SeedRefererScreenshotFixtureAction;
@@ -142,6 +143,39 @@ it('keeps page and widget reports isolated to the selected site', function (): v
     Livewire::test(TopRefererSourcesFilamentWidget::class)
         ->assertSee('Bing')
         ->assertDontSee('Google');
+});
+
+it('seeds demo referral counts outside the screenshot environment, while the screenshot fixture still refuses', function (): void {
+    $site = Site::factory()->create();
+    expect(getenv('CAPELL_SCREENSHOT_FIXTURE'))->toBeFalsy();
+
+    $this->artisan('capell:referer:screenshot-fixture', ['--force' => true])
+        ->expectsOutput('Referer screenshot fixtures require the explicit disposable local screenshot environment.')
+        ->assertFailed();
+    expect(DB::table('referer_daily_counts')->count())->toBe(0);
+
+    $this->artisan('capell:referer:demo')->assertSuccessful();
+    $this->artisan('capell:referer:demo')->assertSuccessful();
+
+    expect(DB::table('referer_daily_counts')->where('site_id', $site->getKey())->count())->toBe(4)
+        ->and((int) DB::table('referer_source_totals')->where('site_id', $site->getKey())->sum('count'))->toBe(224)
+        ->and(CapellCore::getPackage('capell-app/referer')->manifest?->demoCommand())->toBe('capell:referer:demo');
+});
+
+it('refuses to replace real referral counts with demo counts in production', function (): void {
+    $site = Site::factory()->create();
+    $originalEnvironment = app()->environment();
+    app()->instance('env', 'production');
+
+    try {
+        $this->artisan('capell:referer:demo')
+            ->expectsOutput((string) __('capell-referer::package.demo.production_refused'))
+            ->assertFailed();
+    } finally {
+        app()->instance('env', $originalEnvironment);
+    }
+
+    expect(DB::table('referer_daily_counts')->where('site_id', $site->getKey())->count())->toBe(0);
 });
 
 it('seeds an idempotent screenshot report visible in each permitted site', function (): void {

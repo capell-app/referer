@@ -2,22 +2,18 @@
 
 <!-- prettier-ignore-start -->
 
-## What It Does
+Arrivals from search and social sites are counted by name, with a report in the admin and a card on your dashboard. Google, Facebook and six other well-known sites are named, and every other website that sends people to yours is grouped as Other external. A developer must add any other website you want named.
 
-Referers adds privacy-preserving aggregate referral reporting to Capell. It keeps daily and lifetime counters for finite source keys without storing raw URLs or request identifiers.
+Referers stores only counts, one for each site, each day and each label, plus a running total for each site and label. No IP address, cookie, page address or record of an individual visit is kept. Visits from your own site or with no referring site are ignored, and percentages are shares of the arrivals counted.
+
+Each count is a page Capell builds for an arrival, so a reload can count again and one person can be counted more than once. Crawlers, link-preview fetchers, requests with no browser identity and browser prefetch or prerender requests are not counted. Pages served from a saved copy, such as one held by HTML Cache or a CDN, are not counted. Daily counts are deleted after 400 days and all-time totals are kept. That clean-up needs background jobs, which your host or developer must have running.
+
+The admin report offers preset periods from today to all time, or a custom range, for each site you can see.
 
 - **Price and availability:** Check current availability and price on the [Capell Marketplace listing](https://capell.app/extensions/referer).
 - **Licence:** Check the licence terms on the [Capell Marketplace listing](https://capell.app/extensions/referer).
-- **Requires:** `PHP ^8.4`, `capell-app/admin ^1.0.66`, `capell-app/core ^1.0.75`, `capell-app/frontend ^1.0.71`, `lorisleiva/laravel-actions ^2.8`, `spatie/laravel-data ^4.5`, `spatie/laravel-package-tools ^1.14.1`, `spatie/laravel-referer ^1.9`.
+- **Requires:** `PHP ^8.4`, `capell-app/admin ^1.0.66`, `capell-app/core ^1.0.78`, `capell-app/frontend ^1.0.71`, `lorisleiva/laravel-actions ^2.8`, `spatie/laravel-data ^4.5`, `spatie/laravel-package-tools ^1.14.1`, `spatie/laravel-referer ^1.9`.
 - **Install:** `composer require capell-app/referer`.
-
-Administrators review site-scoped referral counts in a cached Referrers report and a small dashboard widget, while origin frontend renders record successful HTML responses best-effort.
-
-## Who It Is For
-
-**For developers:** Typed Actions, bounded validation, atomic upserts, and focused tests keep the privacy contract explicit at each boundary.
-
-**For teams:** Site teams can see which configured external sources contribute successful page requests without receiving a browsing-event log.
 
 ## Quick Start
 
@@ -26,14 +22,18 @@ Administrators review site-scoped referral counts in a cached Referrers report a
 3. Open `/admin/referer`. Select the site and reporting window and apply the filters. Visit a public HTML page through a genuine referring link, then refresh the report.
 4. Check the result: Measured referral sources appear for the selected window; empty results mean no eligible requests were measured. Next: Compare sources over another window and inspect the public tracking prerequisites if the expected request is absent.
 
+## For Developers
+
+Typed Actions, bounded validation, atomic upserts, and focused tests keep the privacy contract explicit at each boundary.
+
 ## Configure
 
 - **Configuration files:** `config/capell-referer.php`.
-- **Commands:** `php artisan capell:referer:prune`, `php artisan capell:referer:screenshot-fixture`.
+- **Commands:** `php artisan capell:referer:demo`, `php artisan capell:referer:prune`, `php artisan capell:referer:screenshot-fixture`.
 
 ## Limits And Pitfalls
 
-- Install the required Capell packages at the versions in `composer.json`: `capell-app/admin ^1.0.66`, `capell-app/core ^1.0.75`, `capell-app/frontend ^1.0.71`.
+- Install the required Capell packages at the versions in `composer.json`: `capell-app/admin ^1.0.66`, `capell-app/core ^1.0.78`, `capell-app/frontend ^1.0.71`.
 - Run migrations before opening package resources or public routes.
 - Keep the host Laravel scheduler running so package-registered schedules can execute: `capell:referer:prune (daily; package registered)`.
 - Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
@@ -57,7 +57,7 @@ Administrators review site-scoped referral counts in a cached Referrers report a
 - Settings: no package settings declared.
 - Queues or schedules: scheduled commands `capell:referer:prune (daily; package registered)`.
 - Cache tags: `referer`.
-- Commands: `capell:referer:prune`, `capell:referer:screenshot-fixture`.
+- Commands: `capell:referer:demo`, `capell:referer:prune`, `capell:referer:screenshot-fixture`.
 
 ## Troubleshooting
 
