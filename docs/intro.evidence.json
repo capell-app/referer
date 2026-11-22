@@ -57,7 +57,7 @@
         ]
     },
     {
-        "claim": "Daily counts are deleted after 400 days and all-time totals are kept.",
+        "claim": "Daily counts are deleted after 400 days. A source's all-time total is kept while it still has a daily count in that period and is deleted with its last one.",
         "evidence": [
             "config/capell-referer.php",
             "src/Actions/PruneRefererCountsAction.php",

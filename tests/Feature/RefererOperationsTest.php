@@ -131,12 +131,12 @@ it('prunes expired daily counters through the console command and supports a dry
     ]);
 
     $this->artisan('capell:referer:prune', ['--days' => 30, '--dry-run' => true])
-        ->expectsOutput('1 daily referral rows eligible.')
+        ->expectsOutput('1 referral counter rows eligible.')
         ->assertSuccessful();
     expect(DB::table('referer_daily_counts')->count())->toBe(2);
 
     $this->artisan('capell:referer:prune', ['--days' => 30])
-        ->expectsOutput('1 daily referral rows deleted.')
+        ->expectsOutput('1 referral counter rows deleted.')
         ->assertSuccessful();
     expect(DB::table('referer_daily_counts')->pluck('date')->all())->toBe(['2026-09-13']);
 });

@@ -19,6 +19,7 @@ final class RefererReportData extends Data
         public readonly ?CarbonImmutable $collectionStartedOn,
         public readonly ?CarbonImmutable $availableThroughOn,
         public readonly bool $available = true,
+        public readonly bool $collectionInterrupted = false,
     ) {}
 
     public function isEmpty(): bool

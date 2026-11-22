@@ -6,6 +6,7 @@ namespace Capell\Referer\Actions;
 
 use Capell\Core\Support\TableName;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -22,7 +23,8 @@ final class PruneRefererCountsAction
         $cutoff = CarbonImmutable::today('UTC')->subDays(max(1, $days) - 1)->toDateString();
 
         if ($dryRun) {
-            return (int) DB::table(TableName::resolve('referer_daily_counts'))->where('date', '<', $cutoff)->count();
+            return (int) DB::table(TableName::resolve('referer_daily_counts'))->where('date', '<', $cutoff)->count()
+                + (int) $this->staleTotalsQuery($cutoff)->count();
         }
 
         return DB::transaction(function () use ($batchSize, $cutoff): int {
@@ -42,9 +44,40 @@ final class PruneRefererCountsAction
                 $deleted += DB::table(TableName::resolve('referer_daily_counts'))->whereIn('id', $ids->all())->delete();
             } while (true);
 
+            do {
+                $ids = $this->staleTotalsQuery($cutoff)
+                    ->orderBy('id')
+                    ->limit($batchSize)
+                    ->pluck('id');
+
+                if ($ids->isEmpty()) {
+                    break;
+                }
+
+                $deleted += DB::table(TableName::resolve('referer_source_totals'))->whereIn('id', $ids->all())->delete();
+            } while (true);
+
             $this->recordRetentionBoundary($cutoff);
 
             return $deleted;
+        });
+    }
+
+    /**
+     * All-time totals are kept only while their source still has a daily count inside the retained period,
+     * so a source that stops sending visitors is removed once its last daily count expires.
+     */
+    private function staleTotalsQuery(string $cutoff): Builder
+    {
+        $totals = TableName::resolve('referer_source_totals');
+        $daily = TableName::resolve('referer_daily_counts');
+
+        return DB::table($totals)->whereNotExists(static function (Builder $query) use ($cutoff, $daily, $totals): void {
+            $query->selectRaw('1')
+                ->from($daily)
+                ->whereColumn($daily . '.site_id', $totals . '.site_id')
+                ->whereColumn($daily . '.source_key', $totals . '.source_key')
+                ->where($daily . '.date', '>=', $cutoff);
         });
     }
 

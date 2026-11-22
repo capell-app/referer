@@ -113,7 +113,11 @@
             <p class="mt-4 text-xs text-gray-500">
                 {{ __('capell-referer::report.measured', ['count' => \Illuminate\Support\Number::format($report->measuredRequests, precision: 0, locale: app()->getLocale())]) }} {{ __('capell-referer::report.utc') }}
             </p>
+            <p class="mt-2 text-xs text-gray-500">{{ __('capell-referer::report.share_definition') }}</p>
             <p class="mt-2 text-xs text-gray-500">{{ __('capell-referer::report.coverage') }}</p>
+            @if ($report->collectionInterrupted)
+                <p class="mt-2 text-xs text-warning-600 dark:text-warning-400">{{ __('capell-referer::report.collection_interrupted') }}</p>
+            @endif
             @if ($report->collectionStartedOn instanceof \Carbon\CarbonImmutable)
                 <p class="mt-2 text-xs text-gray-500">{{ __('capell-referer::report.collection_started', ['date' => $report->collectionStartedOn->toDateString()]) }}</p>
             @endif

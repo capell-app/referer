@@ -37,10 +37,6 @@ final class BuildRefererReportAction
 
     public function handle(Site $site, RefererWindowData $window): RefererReportData
     {
-        if ($this->healthSignal->hasRecentWriteFailure()) {
-            return $this->unavailableReport($window);
-        }
-
         $siteId = $this->siteKey($site);
         $key = self::cacheKey($siteId, $window);
         $ttl = $this->positiveConfigInteger('capell-referer.cache_ttl_seconds', 60);
@@ -61,7 +57,23 @@ final class BuildRefererReportAction
             return $this->unavailableReport($window);
         }
 
-        return $report instanceof RefererReportData ? $report : $this->unavailableReport($window);
+        if (! $report instanceof RefererReportData) {
+            return $this->unavailableReport($window);
+        }
+
+        if (! $report->available || ! $this->healthSignal->hasRecentWriteFailure()) {
+            return $report;
+        }
+
+        return new RefererReportData(
+            rows: $report->rows,
+            measuredRequests: $report->measuredRequests,
+            window: $report->window,
+            generatedAt: $report->generatedAt,
+            collectionStartedOn: $report->collectionStartedOn,
+            availableThroughOn: $report->availableThroughOn,
+            collectionInterrupted: true,
+        );
     }
 
     private function build(int|string $siteId, RefererWindowData $window): RefererReportData

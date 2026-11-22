@@ -17,6 +17,8 @@ return [
     'utc' => 'Dates use UTC. Unmapped external sources are grouped as Other external.',
     'coverage' => 'Only successful HTML page requests observed by this application are included. Requests without a referral header and traffic that bypasses the application are outside this report.',
     'empty' => 'No referred requests recorded for this period.',
+    'share_definition' => 'Share is each source as a percentage of the measured requests above, not of all visits to the site.',
+    'collection_interrupted' => 'Some recent requests could not be counted, so the latest figures may be slightly low. Counting resumes on its own; check Referers in the health report if this keeps appearing.',
     'unavailable' => 'Referral data is temporarily unavailable. Try again later.',
     'collection_started' => 'Collection started :date.',
     'available_through' => 'Daily data is available through :date.',

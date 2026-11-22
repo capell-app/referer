@@ -11,7 +11,7 @@ final class PruneRefererCountsCommand extends Command
 {
     protected $signature = 'capell:referer:prune {--days= : Retain this many UTC days} {--batch=500 : Maximum rows per delete batch} {--dry-run : Count eligible rows without deleting them}';
 
-    protected $description = 'Prune expired daily referral counters while preserving lifetime totals.';
+    protected $description = 'Prune expired daily referral counters and the all-time totals of sources with no retained daily counts.';
 
     public function handle(): int
     {
@@ -28,7 +28,7 @@ final class PruneRefererCountsCommand extends Command
 
         $deleted = PruneRefererCountsAction::run($retentionDays, $batchSize, (bool) $this->option('dry-run'));
         $verb = $this->option('dry-run') ? 'eligible' : 'deleted';
-        $this->info(sprintf('%d daily referral rows %s.', $deleted, $verb));
+        $this->info(sprintf('%d referral counter rows %s.', $deleted, $verb));
 
         return self::SUCCESS;
     }

@@ -145,6 +145,29 @@ it('keeps page and widget reports isolated to the selected site', function (): v
         ->assertDontSee('Google');
 });
 
+it('states what shares are measured against and keeps the report visible after a failed write', function (): void {
+    $site = Site::factory()->create(['name' => 'Interrupted referral site']);
+    DB::table('referer_daily_counts')->insert([
+        'site_id' => $site->getKey(), 'date' => '2026-09-14', 'source_key' => 'google', 'count' => 3,
+    ]);
+    DB::table('referer_source_totals')->insert([
+        'site_id' => $site->getKey(), 'source_key' => 'google', 'count' => 3, 'collection_started_on' => '2026-09-14',
+    ]);
+    Cache::put('capell-referer.health.write-failure', true, 60);
+
+    Livewire::test(RefererPage::class)
+        ->set('siteId', (int) $site->getKey())
+        ->assertSee('Google')
+        ->assertSee((string) __('capell-referer::report.share_definition'))
+        ->assertSee((string) __('capell-referer::report.collection_interrupted'))
+        ->assertDontSee((string) __('capell-referer::report.unavailable'));
+
+    resolve(PermissionRegistrar::class)->setPermissionsTeamId($site->getKey());
+    Livewire::test(TopRefererSourcesFilamentWidget::class)
+        ->assertSee('Google')
+        ->assertDontSee((string) __('capell-referer::report.unavailable'));
+});
+
 it('seeds demo referral counts outside the screenshot environment, while the screenshot fixture still refuses', function (): void {
     $site = Site::factory()->create();
     expect(getenv('CAPELL_SCREENSHOT_FIXTURE'))->toBeFalsy();

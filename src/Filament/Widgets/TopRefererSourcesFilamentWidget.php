@@ -9,7 +9,6 @@ use Capell\Admin\Support\SiteScope;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\Referer\Actions\BuildRefererReportAction;
-use Capell\Referer\Actions\RefererHealthSignal;
 use Capell\Referer\Actions\ResolveRefererWindowAction;
 use Capell\Referer\Data\RefererWindowData;
 use Capell\Referer\Filament\Pages\RefererPage;
@@ -57,7 +56,7 @@ final class TopRefererSourcesFilamentWidget extends BaseWidget implements Capell
             ->paginated(false)
             ->searchable(false)
             ->heading(__('capell-referer::report.top_sources'))
-            ->emptyStateHeading(fn (): string => $this->reportUnavailable || resolve(RefererHealthSignal::class)->hasRecentWriteFailure()
+            ->emptyStateHeading(fn (): string => $this->reportUnavailable
                 ? __('capell-referer::report.unavailable')
                 : __('capell-referer::report.empty'))
             ->columns([

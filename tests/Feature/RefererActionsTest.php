@@ -180,12 +180,32 @@ it('builds a cached source report with the other external bucket in the denomina
     expect(BuildRefererReportAction::run($site, ResolveRefererWindowAction::run('all-time'))->measuredRequests)->toBe(10);
 });
 
-it('marks reports unavailable while collection has a recent write failure', function (): void {
+it('keeps showing stored counts after a failed counter write and flags the possible gap', function (): void {
     $site = new Site;
     $site->setAttribute('id', 7);
+    DB::table('referer_daily_counts')->insert([
+        'site_id' => 7,
+        'date' => '2026-09-14',
+        'source_key' => 'google',
+        'count' => 4,
+    ]);
+    DB::table('referer_source_totals')->insert([
+        'site_id' => 7,
+        'source_key' => 'google',
+        'count' => 4,
+        'collection_started_on' => '2026-09-14',
+    ]);
     Cache::put('capell-referer.health.write-failure', true, 60);
 
-    expect(BuildRefererReportAction::run($site, ResolveRefererWindowAction::run('last-30-days'))->available)
+    $report = BuildRefererReportAction::run($site, ResolveRefererWindowAction::run('last-30-days'));
+
+    expect($report->available)->toBeTrue()
+        ->and($report->measuredRequests)->toBe(4)
+        ->and($report->collectionInterrupted)->toBeTrue();
+
+    Cache::forget('capell-referer.health.write-failure');
+
+    expect(BuildRefererReportAction::run($site, ResolveRefererWindowAction::run('last-30-days'))->collectionInterrupted)
         ->toBeFalse();
 });
 
@@ -239,6 +259,27 @@ it('clamps the dashboard period to the retained daily range', function (): void 
 
     expect($singleDayWindow->startsOn?->toDateString())->toBe('2026-09-14')
         ->and($singleDayWindow->endsOn?->toDateString())->toBe('2026-09-14');
+});
+
+it('removes all-time totals for sources with no counts left in the retained period', function (): void {
+    DB::table('referer_daily_counts')->insert([
+        ['site_id' => 7, 'date' => '2025-08-10', 'source_key' => 'bing', 'count' => 2],
+        ['site_id' => 7, 'date' => '2025-08-10', 'source_key' => 'google', 'count' => 3],
+        ['site_id' => 7, 'date' => '2026-09-14', 'source_key' => 'google', 'count' => 5],
+        ['site_id' => 8, 'date' => '2026-09-14', 'source_key' => 'bing', 'count' => 1],
+    ]);
+    DB::table('referer_source_totals')->insert([
+        ['site_id' => 7, 'source_key' => 'bing', 'count' => 2, 'collection_started_on' => '2025-08-10'],
+        ['site_id' => 7, 'source_key' => 'google', 'count' => 8, 'collection_started_on' => '2025-08-10'],
+        ['site_id' => 8, 'source_key' => 'bing', 'count' => 1, 'collection_started_on' => '2026-09-14'],
+    ]);
+
+    expect(PruneRefererCountsAction::run(400, 1, true))->toBe(3);
+
+    expect(PruneRefererCountsAction::run(400, 1))->toBe(3)
+        ->and(DB::table('referer_source_totals')->where('site_id', 7)->pluck('source_key')->all())->toBe(['google'])
+        ->and(DB::table('referer_source_totals')->where('site_id', 7)->value('count'))->toBe(8)
+        ->and(DB::table('referer_source_totals')->where('site_id', 8)->value('count'))->toBe(1);
 });
 
 it('rolls back daily pruning when the retention boundary cannot be recorded', function (): void {

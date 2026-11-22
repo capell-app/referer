@@ -1,7 +1,8 @@
 {
     "package": "referer",
     "composerName": "capell-app/referer",
-    "generatedFor": "deployment-screenshot-runner",
+    "generatedFor": "shared-capell-screenshot-runner",
+    "provenancePolicy": "runner-only-v1",
     "requiresInstalledPackage": true,
     "outputDirectory": "packages/referer/docs/screenshots",
     "entries": [
