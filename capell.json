@@ -6,6 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^1.0",
     "version": "1.0.0",
+    "launchStatus": "shipped",
     "description": "Counts arrivals from search and social websites by name, with no visitor records, and reports them in the admin and on a dashboard card.",
     "product": {
         "group": "Capell Marketing & Growth",
